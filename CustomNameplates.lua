@@ -1,5 +1,7 @@
-﻿--Settings only edit the parts after =
-local genSettings = {["showPets"]=false,["enableAddOn"]=true,["showFriendly"]=false,["refreshRate"]=1/60} -- edit the refreshRage denominator to a lower value (eg. 30) for better performance at the cost of slower updates
+﻿--Settings only edit the values after =
+  -- edit the refreshRage denominator to a lower value (eg. 30) for better performance at the cost of slower updates
+  -- hbwidth, hbheight will determine the width and hight of the nameplate healthbar.
+local genSettings = {["showPets"]=false,["enableAddOn"]=true,["showFriendly"]=false,["hbwidth"]=80,["hbheight"]=4,["refreshRate"]=1/60} 
 local raidicon = {["size"]=15,["point"]="BOTTOMLEFT",["anchorpoint"]="BOTTOMLEFT",["xoffs"]=-18,["yoffs"]=-4}
 local debufficon = {["size"]=12,["point"]="BOTTOMLEFT",["anchorpoint"]="BOTTOMLEFT",["row1yoffs"]=-13,["row2yoffs"]=-25}
 local classicon = {["size"]=12,["point"]="RIGHT",["anchorpoint"]="LEFT",["xoffs"]=-3,["yoffs"]=-1}
@@ -94,7 +96,7 @@ end
 
 local function CustomNameplates_OnUpdate(elapsed)
   CustomNameplates.ticker = CustomNameplates.ticker + elapsed
-  if not (CustomNameplates.ticker > genSettings.refreshRate) then return end  -- cap at 60fps
+  if not (CustomNameplates.ticker > genSettings.refreshRate) then return end  -- cap at 60fps by default
   CustomNameplates.ticker = 0
   local frames = { WorldFrame:GetChildren() }
   for _, namePlate in ipairs(frames) do
@@ -106,8 +108,8 @@ local function CustomNameplates_OnUpdate(elapsed)
       HealthBar:SetStatusBarTexture("Interface\\AddOns\\CustomNameplates\\barSmall")
       HealthBar:ClearAllPoints()
       HealthBar:SetPoint("CENTER", namePlate, "CENTER", 0, -10)
-      HealthBar:SetWidth(80) --Edit this for width of the healthbar
-      HealthBar:SetHeight(4) --Edit this for height of the healthbar
+      HealthBar:SetWidth(genSettings.hbwidth) 
+      HealthBar:SetHeight(genSettings.hbheight)
       
       --HealthbarBackground
       if HealthBar.bg == nil then
