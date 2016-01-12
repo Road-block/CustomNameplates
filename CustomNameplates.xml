@@ -1,6 +1,7 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 C:\Projects\WoW\Bin\Interface\FrameXML\UI.xsd">
-
+  
+  <Script file="settings.lua"/>
 	<Script file="CustomNameplates.lua"/>
 	
 	<!-- 								Main Frame										-->
@@ -10,6 +11,8 @@ C:\Projects\WoW\Bin\Interface\FrameXML\UI.xsd">
 				this:RegisterEvent("PLAYER_ENTERING_WORLD");
 				this:RegisterEvent("PLAYER_TARGET_CHANGED");
 				this:RegisterEvent("UNIT_AURA");
+        this:RegisterEvent("PLAYER_REGEN_ENABLED");
+        this:RegisterEvent("PLAYER_REGEN_DISABLED");
 				this.ticker = 0;
 				this.scanningPlayers = false;
 			</OnLoad> 

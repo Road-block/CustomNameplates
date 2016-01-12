@@ -1,14 +1,26 @@
-﻿--Settings only edit the values after =
-  -- edit the refreshRage denominator to a lower value (eg. 30) for better performance at the cost of slower updates
-  -- hbwidth, hbheight will determine the width and hight of the nameplate healthbar.
-local genSettings = {["showPets"]=false,["enableAddOn"]=true,["showFriendly"]=false,["hbwidth"]=80,["hbheight"]=4,["refreshRate"]=1/60} 
-local raidicon = {["size"]=15,["point"]="BOTTOMLEFT",["anchorpoint"]="BOTTOMLEFT",["xoffs"]=-18,["yoffs"]=-4}
-local debufficon = {["size"]=12,["point"]="BOTTOMLEFT",["anchorpoint"]="BOTTOMLEFT",["row1yoffs"]=-13,["row2yoffs"]=-25}
-local classicon = {["size"]=12,["point"]="RIGHT",["anchorpoint"]="LEFT",["xoffs"]=-3,["yoffs"]=-1}
-local targetindicator = {["size"]=25,["point"]="BOTTOM",["anchorpoint"]="TOP",["xoffs"]=0,["yoffs"]=-5}
---Settings end
+﻿-- GLOBALS: CustomNameplatesHandleEvent, CustomNameplatesUpdate
+local _G = getfenv(0)
+-- Settings block
+-- DO NOT EDIT THIS, look at _settings.lua file for instructions
+local genSettings
+local raidicon
+local debufficon
+local classicon
+local targetindicator
+if _G.CustomNameplatesSettings then -- user has custom settings load those
+  genSettings = _G.CustomNameplatesSettings.genSettings
+  raidicon = _G.CustomNameplatesSettings.raidicon
+  debufficon = _G.CustomNameplatesSettings.debufficon
+  classicon = _G.CustomNameplatesSettings.classicon
+  targetindicator = _G.CustomNameplatesSettings.targetindicator
+else -- else load defaults
+  genSettings = {["showPets"]=false,["enableAddOn"]=true,["showFriendly"]=false,["combatOnly"]=false,["hbwidth"]=80,["hbheight"]=4,["refreshRate"]=1/60} 
+  raidicon = {["size"]=15,["point"]="BOTTOMLEFT",["anchorpoint"]="BOTTOMLEFT",["xoffs"]=-18,["yoffs"]=-4}
+  debufficon = {["size"]=12,["point"]="BOTTOMLEFT",["anchorpoint"]="BOTTOMLEFT",["row1yoffs"]=-13,["row2yoffs"]=-25}
+  classicon = {["size"]=12,["point"]="RIGHT",["anchorpoint"]="LEFT",["xoffs"]=-3,["yoffs"]=-1}
+  targetindicator = {["size"]=25,["point"]="BOTTOM",["anchorpoint"]="TOP",["xoffs"]=0,["yoffs"]=-5}
+end
 
--- GLOBALS: CustomNameplatesHandleEvent, CustomNameplatesUpdate
 -- Caches: Don't edit
 local currentDebuffs = {}
 local Players = {}
@@ -28,8 +40,8 @@ local Icons = {
 }
 
 -- upvalue some oft-called API for performance (scope upvalue limit = 32, damn you Lua 5.0)
-local UnitDebuff, UnitClass, UnitName, UnitIsPlayer, UnitExists, UnitIsDeadOrGhost = 
-  UnitDebuff, UnitClass, UnitName, UnitIsPlayer, UnitExists, UnitIsDeadOrGhost
+local UnitDebuff, UnitClass, UnitName, UnitIsPlayer, UnitExists, UnitIsDeadOrGhost, UnitAffectingCombat = 
+  UnitDebuff, UnitClass, UnitName, UnitIsPlayer, UnitExists, UnitIsDeadOrGhost, UnitAffectingCombat
 local string_len, string_find, ipairs, table_insert = 
   string.len, string.find, ipairs, table.insert
 
@@ -266,8 +278,9 @@ end
 
 -- xml script handlers (need to be globals)
 function CustomNameplatesHandleEvent(event) --Handles wow events
-	if event == "PLAYER_ENTERING_WORLD" then
-		if (genSettings.enableAddOn) then
+	
+  if event == "PLAYER_ENTERING_WORLD" then
+		if (genSettings.enableAddOn and not genSettings.combatOnly) then
 			ShowNameplates()
 			if (genSettings.showFriendly) then
 				ShowFriendNameplates()
@@ -278,6 +291,9 @@ function CustomNameplatesHandleEvent(event) --Handles wow events
 			HideNameplates()
 			HideFriendNameplates()
 		end
+    if (genSettings.combatOnly) and (UnitAffectingCombat("player") or UnitAffectingCombat("pet")) then
+      ShowNameplates()
+    end
 	end
 	
 	if event == "PLAYER_TARGET_CHANGED" or event == "UNIT_AURA" then
@@ -291,6 +307,15 @@ function CustomNameplatesHandleEvent(event) --Handles wow events
       end
     end
 	end
+
+  if (genSettings.combatOnly) then
+    if event == "PLAYER_REGEN_DISABLED" then -- incombat
+      ShowNameplates()
+    elseif event == "PLAYER_REGEN_ENABLED" then -- exiting combat
+      HideNameplates()
+    end
+  end
+
 end
 
 function CustomNameplatesUpdate(elapsed) --updates the frames
