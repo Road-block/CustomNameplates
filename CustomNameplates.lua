@@ -1,25 +1,25 @@
 ﻿-- GLOBALS: CustomNameplatesHandleEvent, CustomNameplatesUpdate
 local _G = getfenv(0)
+
 -- Settings block
 -- DO NOT EDIT THIS, look at _settings.lua file for instructions
-local genSettings
-local raidicon
-local debufficon
-local classicon
-local targetindicator
-if _G.CustomNameplatesSettings then -- user has custom settings load those
-  genSettings = _G.CustomNameplatesSettings.genSettings
-  raidicon = _G.CustomNameplatesSettings.raidicon
-  debufficon = _G.CustomNameplatesSettings.debufficon
-  classicon = _G.CustomNameplatesSettings.classicon
-  targetindicator = _G.CustomNameplatesSettings.targetindicator
-else -- else load defaults
-  genSettings = {["showPets"]=false,["enableAddOn"]=true,["showFriendly"]=false,["combatOnly"]=false,["hbwidth"]=80,["hbheight"]=4,["refreshRate"]=1/60} 
-  raidicon = {["size"]=15,["point"]="BOTTOMLEFT",["anchorpoint"]="BOTTOMLEFT",["xoffs"]=-18,["yoffs"]=-4}
-  debufficon = {["size"]=12,["point"]="BOTTOMLEFT",["anchorpoint"]="BOTTOMLEFT",["row1yoffs"]=-13,["row2yoffs"]=-25}
-  classicon = {["size"]=12,["point"]="RIGHT",["anchorpoint"]="LEFT",["xoffs"]=-3,["yoffs"]=-1}
-  targetindicator = {["size"]=25,["point"]="BOTTOM",["anchorpoint"]="TOP",["xoffs"]=0,["yoffs"]=-5}
-end
+local genSettings = _G.CustomNameplatesSettings and _G.CustomNameplatesSettings.genSettings
+  or {["showPets"]=false,["enableAddOn"]=true,["showFriendly"]=false,["combatOnly"]=false,["hbwidth"]=80,["hbheight"]=4,
+      ["texture"]="Interface\\AddOns\\CustomNameplates\\barSmall",["refreshRate"]=1/60}
+local raidicon = _G.CustomNameplatesSettings and _G.CustomNameplatesSettings.raidicon
+  or {["size"]=15,["point"]="BOTTOMLEFT",["anchorpoint"]="BOTTOMLEFT",["xoffs"]=-18,["yoffs"]=-4}
+local debufficon = _G.CustomNameplatesSettings and _G.CustomNameplatesSettings.debufficon
+  or {["hide"]=false,["size"]=12,["point"]="BOTTOMLEFT",["anchorpoint"]="BOTTOMLEFT",["row1yoffs"]=-13,["row2yoffs"]=-25}
+local classicon = _G.CustomNameplatesSettings and _G.CustomNameplatesSettings.classicon
+  or {["hide"]=false,["size"]=12,["point"]="RIGHT",["anchorpoint"]="LEFT",["xoffs"]=-3,["yoffs"]=-1}
+local targetindicator = _G.CustomNameplatesSettings and _G.CustomNameplatesSettings.targetindicator
+  or {["hide"]=false,["size"]=25,["point"]="BOTTOM",["anchorpoint"]="TOP",["xoffs"]=0,["yoffs"]=-5}
+local nametext = _G.CustomNameplatesSettings and _G.CustomNameplatesSettings.nametext
+  or {["size"]=12,["point"]="BOTTOM",["anchorpoint"]="CENTER",["xoffs"]=0,["yoffs"]=-4,
+      ["font"]="Interface\\AddOns\\CustomNameplates\\Fonts\\Ubuntu-C.ttf"}
+local leveltext = _G.CustomNameplatesSettings and _G.CustomNameplatesSettings.leveltext
+  or {["hide"]=false,["size"]=11,["point"]="TOPLEFT",["anchorpoint"]="RIGHT",["xoffs"]=3,["yoffs"]=4,
+      ["font"]="Interface\\AddOns\\CustomNameplates\\Fonts\\Helvetica_Neue_LT_Com_77_Bold_Condensed.ttf"}
 
 -- Caches: Don't edit
 local currentDebuffs = {}
@@ -96,6 +96,7 @@ local function fillPlayerDB(name)
 end
 
 local function targetIndicatorShow(namePlate)
+  if (targetindicator.hide) then return end
   if CustomNameplates.scanningPlayers then return end
   namePlate.targetIndicator:ClearAllPoints()
   namePlate.targetIndicator:SetPoint(targetindicator.point,namePlate,targetindicator.anchorpoint, targetindicator.xoffs, targetindicator.yoffs)
@@ -117,7 +118,7 @@ local function CustomNameplates_OnUpdate(elapsed)
       local Border, Glow, Name, Level, _, RaidTargetIcon = namePlate:GetRegions()
       
       --Healthbar
-      HealthBar:SetStatusBarTexture("Interface\\AddOns\\CustomNameplates\\barSmall")
+      HealthBar:SetStatusBarTexture(genSettings.texture)
       HealthBar:ClearAllPoints()
       HealthBar:SetPoint("CENTER", namePlate, "CENTER", 0, -10)
       HealthBar:SetWidth(genSettings.hbwidth) 
@@ -174,16 +175,19 @@ local function CustomNameplates_OnUpdate(elapsed)
       
       if UnitExists("target") and HealthBar:GetAlpha() == 1 then --Sets the texture of debuffs to debufficons
         targetIndicatorShow(namePlate)
-        local j = 1
-        local k = 1
-        for j, e in ipairs(currentDebuffs) do
-          namePlate.debuffIcons[j]:SetTexture(currentDebuffs[j])
-          namePlate.debuffIcons[j]:SetTexCoord(.078, .92, .079, .937)
-          namePlate.debuffIcons[j]:SetAlpha(0.9)
-          k = k + 1
-        end
-        for j=k,16,1 do
-          namePlate.debuffIcons[j]:SetTexture(nil)
+        if (debufficon.hide) then
+        else
+          local j = 1
+          local k = 1
+          for j, e in ipairs(currentDebuffs) do
+            namePlate.debuffIcons[j]:SetTexture(currentDebuffs[j])
+            namePlate.debuffIcons[j]:SetTexCoord(.078, .92, .079, .937)
+            namePlate.debuffIcons[j]:SetAlpha(0.9)
+            k = k + 1
+          end
+          for j=k,16,1 do
+            namePlate.debuffIcons[j]:SetTexture(nil)
+          end
         end
       else
         targetIndicatorHide(namePlate)
@@ -215,16 +219,21 @@ local function CustomNameplates_OnUpdate(elapsed)
       Glow:Hide()
 
       Name:SetFontObject(GameFontNormal)
-      Name:SetFont("Interface\\AddOns\\CustomNameplates\\Fonts\\Ubuntu-C.ttf",12)
-      Name:SetPoint("BOTTOM", namePlate, "CENTER", 0, -4)
+      Name:SetFont(nametext.font,nametext.size)
+      Name:SetPoint(nametext.point, namePlate, nametext.anchorpoint, nametext.xoffs, nametext.yoffs)
       
       Level:SetFontObject(GameFontNormal)
-      Level:SetFont("Interface\\AddOns\\CustomNameplates\\Fonts\\Helvetica_Neue_LT_Com_77_Bold_Condensed.ttf",11) --
-      Level:SetPoint("TOPLEFT", Name, "RIGHT", 3, 4)
+      Level:SetFont(leveltext.font,leveltext.size)
+      Level:SetPoint(leveltext.point, Name, leveltext.anchorpoint,leveltext.xoffs,leveltext.yoffs)
 
       HealthBar:Show()
       Name:Show()
-      Level:Show()
+      if (leveltext.hide) then
+        Level:Hide()
+      else
+        Level:Show()
+      end
+
 
       local red, green, blue, _ = Name:GetTextColor() --Set Color of Namelabel
       -- Print(red.." "..green.." "..blue)
@@ -265,13 +274,18 @@ local function CustomNameplates_OnUpdate(elapsed)
       end
       
       --if currently one of the nameplates is an actual player, draw classicon
-      if  Players[name] ~= nil and namePlate.classIcon:GetTexture() == "Solid Texture" and string_find(namePlate.classIcon:GetTexture(), "Interface") == nil then
-        namePlate.classIcon:SetTexture(Icons[Players[name]["class"]])
-        namePlate.classIcon:SetTexCoord(.078, .92, .079, .937)
-        namePlate.classIcon:SetAlpha(0.9)
-        namePlate.classIconBorder:Show()
+      if (classicon.hide) then
+      else
+        if Players[name] ~= nil and namePlate.classIcon:GetTexture() == "Solid Texture" and string_find(namePlate.classIcon:GetTexture(), "Interface") == nil then
+          namePlate.classIcon:SetTexture(Icons[Players[name]["class"]])
+          namePlate.classIcon:SetTexCoord(.078, .92, .079, .937)
+          namePlate.classIcon:SetAlpha(0.9)
+          namePlate.classIconBorder:Show()
+        end        
       end
+
       namePlate:EnableMouse(false)
+
     end
   end  
 end
