@@ -24,6 +24,7 @@ local leveltext = _G.CustomNameplatesSettings and _G.CustomNameplatesSettings.le
 -- Caches: Don't edit
 local currentDebuffs = {}
 local Players = {}
+local PlayerPets = {}
 local Targets = {}
 
 local Icons = {
@@ -78,11 +79,12 @@ local function isPet(name)
   ["Ancona Chicken"]=true,["Worg Pup"]=true,["Smolderweb Hatchling"]=true,["Mechanical Chicken"]=true,["Sprite Darter"]=true,["Green Wing Macaw"]=true,
   ["Hyacinth Macaw"]=true,["Tiny Black Whelpling"]=true,["Tiny Emerald Whelpling"]=true,["Tiny Crimson Whelpling"]=true,["Siamese"]=true,
   ["Unconscious Dig Rat"]=true,["Mechanical Squirrel"]=true,["Pet Bombling"]=true,["Lil' Smokey"]=true,["Lifelike Mechanical Toad"]=true}
-  return PetsENG[name] or PetsRU[name] or false
+  return PetsENG[name] or PetsRU[name] or PlayerPets[name] or false
 end
 
 local function fillPlayerDB(name)
   if Players[name] ~= nil then return end
+  if PlayerPets[name] ~= nil then return end
   if Targets[name] == nil then
     TargetByName(name, true)
     table_insert(Targets, name)
@@ -91,7 +93,9 @@ local function fillPlayerDB(name)
       local _, class = UnitClass("target") -- use the locale-agnostic value
       table_insert(Players, name)
       Players[name] = {["class"] = class}
-    end   
+    elseif UnitPlayerControlled("target") and UnitCreatureFamily("target")~=nil then -- should be a player pet
+      PlayerPets[name] = true
+    end  
   end
 end
 
@@ -261,9 +265,7 @@ local function CustomNameplates_OnUpdate(elapsed)
       local name = Name:GetText()
       if genSettings.showPets ~= true then
         if isPet(name) then
-          HealthBar:Hide()
-          Name:Hide()
-          Level:Hide()
+          namePlate:Hide()
         end
       end
       if UnitName("target") == nil and string_find(name, "%s") == nil and string_len(name) <= 12 and Targets[name] == nil then --Set Name text and saves it in a list
@@ -335,6 +337,3 @@ end
 function CustomNameplatesUpdate(elapsed) --updates the frames
 	CustomNameplates_OnUpdate(elapsed)
 end
-
-
-
