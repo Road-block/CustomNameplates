@@ -296,15 +296,14 @@ function CustomNameplatesHandleEvent(event) --Handles wow events
   if event == "PLAYER_ENTERING_WORLD" then
 		if (genSettings.enableAddOn and not genSettings.combatOnly) then
 			ShowNameplates()
-			if (genSettings.showFriendly) then
-				ShowFriendNameplates()
-			else
-				HideFriendNameplates()
-			end
 		else
 			HideNameplates()
-			HideFriendNameplates()
 		end
+    if (genSettings.showFriendly) then
+      ShowFriendNameplates()
+    else
+      HideFriendNameplates()
+    end    
     if (genSettings.combatOnly) and (UnitAffectingCombat("player") or UnitAffectingCombat("pet")) then
       ShowNameplates()
     end
