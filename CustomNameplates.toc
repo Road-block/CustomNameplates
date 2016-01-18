@@ -1,6 +1,6 @@
 ## Title: CustomNameplates
 ## Interface: 11200
-## Version: 1.3
+## Version: 1.4
 ## Author: Bonho
 ## X-Credits: Snelf, Lulleh, Roadblock
 ## Notes: Smaller stylized mouse-disabled nameplates with player class icons, target debuffs, target indicator. Lua-only settings at _settings.lua.
