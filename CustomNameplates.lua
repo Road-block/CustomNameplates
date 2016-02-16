@@ -2,26 +2,6 @@
 local _G = getfenv(0)
 local ADDON = {}
 
--- Settings block
--- DO NOT EDIT THIS, look at _settings.lua file for instructions
-ADDON.genSettings = _G.CustomNameplatesSettings and _G.CustomNameplatesSettings.genSettings
-  or {["showPets"]=false,["enableAddOn"]=true,["showFriendly"]=false,["combatOnly"]=false,["hbwidth"]=80,["hbheight"]=4,
-      ["texture"]="Interface\\AddOns\\CustomNameplates\\barSmall",["refreshRate"]=1/60}
-ADDON.raidicon = _G.CustomNameplatesSettings and _G.CustomNameplatesSettings.raidicon
-  or {["size"]=15,["point"]="BOTTOMLEFT",["anchorpoint"]="BOTTOMLEFT",["xoffs"]=-18,["yoffs"]=-4}
-ADDON.debufficon = _G.CustomNameplatesSettings and _G.CustomNameplatesSettings.debufficon
-  or {["hide"]=false,["size"]=12,["point"]="BOTTOMLEFT",["anchorpoint"]="BOTTOMLEFT",["row1yoffs"]=-13,["row2yoffs"]=-25}
-ADDON.classicon = _G.CustomNameplatesSettings and _G.CustomNameplatesSettings.classicon
-  or {["hide"]=false,["size"]=12,["point"]="RIGHT",["anchorpoint"]="LEFT",["xoffs"]=-3,["yoffs"]=-1}
-ADDON.targetindicator = _G.CustomNameplatesSettings and _G.CustomNameplatesSettings.targetindicator
-  or {["hide"]=false,["size"]=25,["point"]="BOTTOM",["anchorpoint"]="TOP",["xoffs"]=0,["yoffs"]=-5}
-ADDON.nametext = _G.CustomNameplatesSettings and _G.CustomNameplatesSettings.nametext
-  or {["size"]=12,["point"]="BOTTOM",["anchorpoint"]="CENTER",["xoffs"]=0,["yoffs"]=-4,
-      ["font"]="Interface\\AddOns\\CustomNameplates\\Fonts\\Ubuntu-C.ttf"}
-ADDON.leveltext = _G.CustomNameplatesSettings and _G.CustomNameplatesSettings.leveltext
-  or {["hide"]=false,["size"]=11,["point"]="TOPLEFT",["anchorpoint"]="RIGHT",["xoffs"]=3,["yoffs"]=4,
-      ["font"]="Interface\\AddOns\\CustomNameplates\\Fonts\\Helvetica_Neue_LT_Com_77_Bold_Condensed.ttf"}
-
 -- Caches: Don't edit
 ADDON.currentDebuffs = {}
 ADDON.Players = {}
@@ -291,7 +271,19 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
         end        
       end
 
-      namePlate:EnableMouse(false)
+      if Boss:IsVisible() then
+        if Level:IsVisible() then
+            Level:Hide()
+            Boss:ClearAllPoints()
+            Boss:SetPoint("TOPLEFT", Name, "RIGHT", 1, 7)
+        end
+      end
+
+      if (ADDON.genSettings.clickThrough == true) then
+        namePlate:EnableMouse(false)
+      else
+        namePlate:EnableMouse(true)
+      end
 
     end
   end  
@@ -300,19 +292,40 @@ end
 -- xml script handlers (need to be globals)
 function CustomNameplatesHandleEvent(event) --Handles wow events
   
-  if event == "PLAYER_ENTERING_WORLD" then
-    if (ADDON.genSettings.enableAddOn and not ADDON.genSettings.combatOnly) then
-      ShowNameplates()
-    else
-      HideNameplates()
+  if event == "VARIABLES_LOADED" then
+    local options = _G["CustomNameplatesOptions"]()
+    -- Settings block
+    ADDON.genSettings = CustomNameplatesDBPC.genSettings
+    ADDON.raidicon = CustomNameplatesDBPC.raidicon
+    ADDON.debufficon = CustomNameplatesDBPC.debufficon
+    ADDON.classicon = CustomNameplatesDBPC.classicon
+    ADDON.targetindicator = CustomNameplatesDBPC.targetindicator
+    ADDON.nametext = CustomNameplatesDBPC.nametext
+    ADDON.leveltext = CustomNameplatesDBPC.leveltext
+    ADDON.VARIABLES_LOADED = true
+    if ADDON.PLAYER_ENTERING_WORLD then
+      ADDON.PLAYER_ENTERING_WORLD = nil
+      CustomNameplatesHandleEvent("PLAYER_ENTERING_WORLD")
     end
-    if (ADDON.genSettings.showFriendly) then
-      ShowFriendNameplates()
+  end
+
+  if event == "PLAYER_ENTERING_WORLD" then
+    if ADDON.VARIABLES_LOADED then
+      if (ADDON.genSettings.enableAddOn and not ADDON.genSettings.combatOnly) then
+        ShowNameplates()
+      else
+        HideNameplates()
+      end
+      if (ADDON.genSettings.showFriendly) then
+        ShowFriendNameplates()
+      else
+        HideFriendNameplates()
+      end    
+      if (ADDON.genSettings.combatOnly) and (UnitAffectingCombat("player") or UnitAffectingCombat("pet")) then
+        ShowNameplates()
+      end
     else
-      HideFriendNameplates()
-    end    
-    if (ADDON.genSettings.combatOnly) and (UnitAffectingCombat("player") or UnitAffectingCombat("pet")) then
-      ShowNameplates()
+      ADDON.PLAYER_ENTERING_WORLD = true
     end
   end
   
@@ -328,7 +341,7 @@ function CustomNameplatesHandleEvent(event) --Handles wow events
     end
   end
 
-  if (ADDON.genSettings.combatOnly) then
+  if ADDON.VARIABLES_LOADED and ADDON.genSettings.combatOnly then
     if event == "PLAYER_REGEN_DISABLED" then -- incombat
       ShowNameplates()
     elseif event == "PLAYER_REGEN_ENABLED" then -- exiting combat
@@ -339,5 +352,18 @@ function CustomNameplatesHandleEvent(event) --Handles wow events
 end
 
 function CustomNameplatesUpdate(elapsed) --updates the frames
+  if not ADDON.VARIABLES_LOADED then return end
   ADDON.CustomNameplates_OnUpdate(elapsed)
 end
+
+SlashCmdList["CNP"] = function(msg)
+  local options = _G["CustomNameplatesOptions"]()
+  if options:IsVisible() then
+    options:Hide()
+  else
+    options:Show()
+  end
+end
+SlashCmdList["CUSTOMNAMEPLATES"] = SlashCmdList["CNP"]
+SLASH_CNP1 = "/cnp"
+SLASH_CUSTOMNAMEPLATES1 = "/customnameplates"
