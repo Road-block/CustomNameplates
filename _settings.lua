@@ -23,8 +23,8 @@ local genSettings = {
   ["hbheight"]=4,               -- height of nameplates
                                 -- texture of the healthbar (if a non-default it needs to be put in addon folder)  
   ["texture"]="Interface\\AddOns\\CustomNameplates\\barSmall",               
-  ["refreshRate"]=1/60          -- the denominator defines the update frequency (in FPS), lower the number for better performance at the cost of slower updates
-  ["clickThrough"]=true,        -- controls whether the nameplates are clickthrough
+  ["refreshRate"]=1/60,         -- the denominator defines the update frequency (in FPS), lower the number for better performance at the cost of slower updates
+  ["clickThrough"]=true         -- controls whether the nameplates are clickthrough
 } 
 local raidicon = {
   ["size"]=15,                  -- size of raidicon

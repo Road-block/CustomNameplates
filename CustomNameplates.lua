@@ -77,11 +77,25 @@ function ADDON.fillPlayerDB(name)
     table_insert(ADDON.Targets, name)
     ADDON.Targets[name] = "_"
     if UnitIsPlayer("target") then
-      local _, class = UnitClass("target") -- use the locale-agnostic value
+      local _, class = UnitClass("target") -- use the locale-independent return
       table_insert(ADDON.Players, name)
       ADDON.Players[name] = {["class"] = class}
     end   
   end
+end
+
+function ADDON.targetEmphasize(namePlate)
+  local emWidth, emHeight = (ADDON.genSettings.hbwidth * 1.1),(ADDON.genSettings.hbheight * 1.5)
+  namePlate.hb:SetWidth(emWidth)
+  namePlate.hb:SetHeight(emHeight)
+  namePlate.hb.bg:SetWidth(emWidth + 1.5)
+  namePlate.hb.bg:SetHeight(emHeight + 1.5)
+end
+function ADDON.targetNormalsize(namePlate)
+  namePlate.hb:SetWidth(ADDON.genSettings.hbwidth)
+  namePlate.hb:SetHeight(ADDON.genSettings.hbheight)
+  namePlate.hb.bg:SetWidth(ADDON.genSettings.hbwidth + 1.5)
+  namePlate.hb.bg:SetHeight(ADDON.genSettings.hbheight + 1.5)
 end
 
 function ADDON.targetIndicatorShow(namePlate)
@@ -122,7 +136,8 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
         HealthBar.bg:SetWidth(HealthBar:GetWidth() + 1.5)
         HealthBar.bg:SetHeight(HealthBar:GetHeight() + 1.5)
       end
-      
+      namePlate.hb = HealthBar
+
       --RaidTarget
       RaidTargetIcon:ClearAllPoints()
       RaidTargetIcon:SetWidth(ADDON.raidicon.size)
@@ -162,6 +177,7 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
       end
       
       if UnitExists("target") and HealthBar:GetAlpha() == 1 then --Sets the texture of debuffs to debufficons
+        ADDON.targetEmphasize(namePlate)
         ADDON.targetIndicatorShow(namePlate)
         if (ADDON.debufficon.hide) then
         else
@@ -178,6 +194,7 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
           end
         end
       else
+        ADDON.targetNormalsize(namePlate)
         ADDON.targetIndicatorHide(namePlate)
         for j=1,16,1 do
           namePlate.debuffIcons[j]:SetTexture(nil)
