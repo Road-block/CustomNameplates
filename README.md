@@ -17,6 +17,7 @@ If this is the first time installing the addon and want to customize some lua op
 when spam clicking a target or at low refresh rates.
 - [Work in Progress] Start on an options GUI and Per character saved variables.
 
+##Downloads:
 Since [1.5-alpha](https://github.com/Dridzt/CustomNameplates/releases/) and later package also contains an **optional** texture replacement package in CustomNameplates-Interface.zip  
 If you install it, this CustomNameplates-Interface.zip needs to be extracted 
 directly inside **\<wow_install\>\Interface\**   
