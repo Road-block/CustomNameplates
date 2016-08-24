@@ -32,6 +32,8 @@ ADDON.PetsENG = {["Orange Tabby"]=true,["Silver Tabby"]=true,["Bombay"]=true,["C
   ["Hyacinth Macaw"]=true,["Tiny Black Whelpling"]=true,["Tiny Emerald Whelpling"]=true,["Tiny Crimson Whelpling"]=true,["Siamese"]=true,
   ["Unconscious Dig Rat"]=true,["Mechanical Squirrel"]=true,["Pet Bombling"]=true,["Lil' Smokey"]=true,["Lifelike Mechanical Toad"]=true}
 
+local _, class = UnitClass'player'
+ADDON.class = class
 -- upvalue some oft-called API for performance (scope upvalue limit = 32, damn you Lua 5.0)
 local UnitDebuff, UnitClass, UnitName, UnitIsPlayer, UnitExists, UnitIsDeadOrGhost, UnitAffectingCombat = 
   UnitDebuff, UnitClass, UnitName, UnitIsPlayer, UnitExists, UnitIsDeadOrGhost, UnitAffectingCombat
@@ -56,6 +58,14 @@ function ADDON.getDebuffs() --get debuffs on current target and store it in list
     i = i + 1
     debuff = UnitDebuff("target", i)
   end
+end
+local function decimal_round(n, dp)      -- ROUND TO 1 DECIMAL PLACE
+    local shift = 10^(dp or 0)
+    return math.floor(n*shift + .5)/shift
+end
+local getTimerLeft = function(tEnd)
+	local t = tEnd - GetTime()
+    if t > 5 then return decimal_round(t, 0) else return decimal_round(t, 1) end
 end
 
 function ADDON.IsNamePlateFrame(frame)
@@ -229,7 +239,83 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
       Level:SetFontObject(GameFontNormal)
       Level:SetFont(ADDON.leveltext.font,ADDON.leveltext.size)
       Level:SetPoint(ADDON.leveltext.point, Name, ADDON.leveltext.anchorpoint,ADDON.leveltext.xoffs,ADDON.leveltext.yoffs)
+	  
+	  local text = Name:GetText()
+	  local target = GetUnitName'target'
+	  
+	  if ADDON.class == 'ROGUE' or ADDON.class == 'DRUID' then 
+		if namePlate.cp == nil then
+            namePlate.cp = namePlate:CreateFontString(nil, 'OVERLAY')
+            namePlate.cp:SetFont(STANDARD_TEXT_FONT, 18, 'OUTLINE')
+            namePlate.cp:SetPoint('TOP', HealthBar,'TOP', 0, 4)
+        end
+		
+		local cp 	 = GetComboPoints()
+		namePlate.cp:Hide()
+		if target == text and HealthBar:GetAlpha() == 1 and cp > 0 then
+			namePlate.cp:Show()
+			namePlate.cp:SetText(string.rep('•', cp))
+			namePlate.cp:SetTextColor(.5*(cp - 1), 2/(cp - 1), .5/(cp - 1))
+		end
+	  end
+	  
+	  if namePlate.cast == nil then
+		namePlate.cast = CreateFrame('StatusBar', nil, namePlate)
+		namePlate.cast:SetStatusBarTexture([[Interface\AddOns\CustomNameplates\textures\smooth]])
+		namePlate.cast:SetStatusBarColor(1, .4, 0)
+		namePlate.cast:SetBackdrop({bgFile = [[Interface\AddOns\CustomNameplates\Backdrop\PlainBackdrop]],})
+		namePlate.cast:SetBackdropColor(0, 0, 0, .9)
+		namePlate.cast:SetHeight(14)
+		namePlate.cast:SetPoint('LEFT', namePlate, 21, 0)
+		namePlate.cast:SetPoint('RIGHT', namePlate, 0, 0)
+		namePlate.cast:SetPoint('TOP', HealthBar, 'BOTTOM', 0, -6)
 
+		namePlate.cast.text = namePlate.cast:CreateFontString(nil, 'OVERLAY')
+		namePlate.cast.text:SetTextColor(1, 1, 1)
+		namePlate.cast.text:SetFont(STANDARD_TEXT_FONT, 10)
+		namePlate.cast.text:SetShadowOffset(1, -1)
+		namePlate.cast.text:SetShadowColor(0, 0, 0)
+		namePlate.cast.text:SetPoint('LEFT', namePlate.cast, 'LEFT', 2, 0)
+
+		namePlate.cast.timer = namePlate.cast:CreateFontString(nil, 'OVERLAY')
+		namePlate.cast.timer:SetTextColor(1, 1, 1)
+		namePlate.cast.timer:SetFont(STANDARD_TEXT_FONT, 9)
+		namePlate.cast.timer:SetPoint('RIGHT', namePlate.cast,'RIGHT', -2, 0)
+
+		namePlate.cast.icon = namePlate.cast:CreateTexture(nil, 'OVERLAY', nil, 7)
+		namePlate.cast.icon:SetWidth(16) namePlate.cast.icon:SetHeight(14)
+		namePlate.cast.icon:SetPoint('RIGHT', namePlate.cast, 'LEFT', -2, 0)
+		namePlate.cast.icon:SetTexture[[Interface\Icons\Spell_nature_purge]]
+		namePlate.cast.icon:SetTexCoord(.1, .9, .1, .9)
+
+--[[	namePlate.cast.border = namePlate.cast:CreateTexture(nil, 'OVERLAY')
+		namePlate.cast.border:SetTexture[[Interface\AddOns\CustomNameplates\border\roth]]
+		namePlate.cast.border:SetHeight(32)
+		namePlate.cast.border:SetPoint('TOPLEFT', namePlate, 'BOTTOMLEFT', 0, 8)
+		namePlate.cast.border:SetPoint('TOPRIGHT', namePlate, 'BOTTOMRIGHT', 0, 9)
+		namePlate.cast.border:SetVertexColor(.2, .2, .2)
+	]]
+	  end
+	  namePlate.cast:Hide()
+	  if text ~= nil then
+		local v = PROCESSCASTINGgetCast(text)
+		if v ~= nil then
+			if GetTime() < v.timeEnd then
+				namePlate.cast:SetMinMaxValues(0, v.timeEnd - v.timeStart)
+				if v.inverse then
+					namePlate.cast:SetValue(mod((v.timeEnd - GetTime()), v.timeEnd - v.timeStart))
+				else
+					namePlate.cast:SetValue(mod((GetTime() - v.timeStart), v.timeEnd - v.timeStart))
+				end
+				namePlate.cast.text:SetText(v.spell)
+				namePlate.cast.timer:SetText(getTimerLeft(v.timeEnd)..'s')
+				namePlate.cast.icon:SetTexture(v.icon)
+				namePlate.cast:SetAlpha(namePlate:GetAlpha())
+				namePlate.cast:Show()
+			end
+		end
+	  end
+	  
       HealthBar:Show()
       Name:Show()
 
