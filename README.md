@@ -1,7 +1,7 @@
 # CustomNameplates
 Vanilla WoW Nameplate addon. Original author: Bonho, Modifications by Snelf, Lulleh, Roadblock, Laytya (me)
 
-![CustomNameplates Screen](http://i.imgur.com/e0AazsM.png)
+![CustomNameplates Screen](http://i.imgur.com/4o5Frqw.jpg)
 
 ### Reminder:  
 If this is the first time installing the addon and want to customize some lua options
