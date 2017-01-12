@@ -5,8 +5,6 @@ C:\Projects\WoW\Bin\Interface\FrameXML\UI.xsd">
   <Script file="options.lua"/>
 	<Script file="CustomNameplates.lua"/>
 	
-<Script file="CustomNamePlatesTimers.lua"/>
-	
 	<!-- 								Main Frame										-->
 	<Frame name="CustomNameplates">
 		<Scripts>

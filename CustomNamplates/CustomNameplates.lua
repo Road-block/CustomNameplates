@@ -145,8 +145,6 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
   CustomNameplates.ticker = 0
   local frames = { WorldFrame:GetChildren() }
 
---  CNPCleanUpExpiredDebuffs()
-
   for _, namePlate in ipairs(frames) do
     if ADDON.IsNamePlateFrame(namePlate) then
       if (ADDON.namePlateCache[namePlate] == nil) then
@@ -226,16 +224,6 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
 			  namePlate.debuffIcons[j].cd:SetPoint('TOPLEFT', -2, 7)
 			  namePlate.debuffIcons[j].cd:Hide()
 		  end
- --[[ 		  namePlate.debuffIcons[j].cd = CreateFrame("Frame", "CNPDebuff"..j.."CD", namePlate.debuffIcons[j])
-         namePlate.debuffIcons[j].cd:SetWidth(ADDON.debufficon.sizex)
-          namePlate.debuffIcons[j].cd:SetHeight(ADDON.debufficon.sizey)
-          namePlate.debuffIcons[j].cd:SetFrameLevel(1)
-          namePlate.debuffIcons[j].cd:SetPoint("CENTER", namePlate.debuffIcons[j], 0, 0)
-
-          namePlate.debuffIcons[j].cdradial = CNPCreateCooldown(namePlate.debuffIcons[j].cd, 0.28 * ADDON.debufficon.sizex/12, false)
-          namePlate.debuffIcons[j].cdradial:SetAlpha(1)
-          namePlate.debuffIcons[j].cdradial:Hide()
- ]]
           namePlate.debuffIcons[j]:Hide()
         end
       end
@@ -247,19 +235,11 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
         else
           local j = 1
           local k = 1
-          -- Current debuffs is a list of ALL DEBUFFS ON THE TARGET, AS SPECIFIED BY UnitDebuff
-          -- We are potentially tracking some of them, and we'll match by icon. If the same
-          -- icon is present multiple times, the most recently tracked spell will be shown
-          -- for both.
-
- --         local trackedDebuffs = CNPGetTrackedUnitDebuffs(UnitName("target"))
- --         local debuffIsTracked = false
           local texture = nil
 
           for j, e in ipairs(ADDON.currentDebuffs) do
 			local ry = (ADDON.debufficon.sizey/ADDON.debufficon.sizex)/2
             debuffIsTracked = false
-            --ADDON.Print("Setting debuff " .. j .. " texture " .. ADDON.currentDebuffs[j] .. " and showing frame")
             texture = ADDON.currentDebuffs[j]
             if texture then 
 				namePlate.debuffIcons[j].texture:SetTexture(texture,true)
@@ -285,34 +265,11 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
 				
 				end
 			end
---[[
-            for _, debuff in ipairs(trackedDebuffs) do
-              --ADDON.Print(debuff)
-              if texture == debuff.texture then
-                debuffIsTracked = true
-                --ADDON.Print("debuff " .. debuff.texture .. " is tracked! Curr texture: " .. texture)
-                --ADDON.Print("Start: " .. debuff.starttime .. ", end time: " .. debuff.endtime)
-
-                namePlate.debuffIcons[j].cd:Show()
-                namePlate.debuffIcons[j].cdradial:SetTimers(debuff.starttime, debuff.endtime)
-                namePlate.debuffIcons[j].cdradial:Show()
-
-                break
-              end
-            end
-
-            if (not debuffIsTracked) then
-              namePlate.debuffIcons[j].cd:Hide()
-              namePlate.debuffIcons[j].cdradial:Hide()
-            end
-]]
             k = k + 1
           end
           for j=k,16,1 do
             namePlate.debuffIcons[j].texture:SetTexture(nil)
             namePlate.debuffIcons[j]:Hide()
---            namePlate.debuffIcons[j].cd:Hide()
---            namePlate.debuffIcons[j].cdradial:Hide()
           end
         end
       else
@@ -322,8 +279,6 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
           if namePlate.debuffIcons[j].texture then 
 			namePlate.debuffIcons[j].texture:SetTexture(nil)
 			namePlate.debuffIcons[j]:Hide()
- --         namePlate.debuffIcons[j].cd:Hide()
- --         namePlate.debuffIcons[j].cdradial:Hide()
 		  end
         end
       end
@@ -351,19 +306,13 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
 
       Name:SetFontObject(GameFontNormal)
       Name:SetFont(ADDON.nametext.font,ADDON.nametext.size,'OUTLINE',0,-1)
-
-
---	  Name:SetPoint('BOTTOMLEFT',namePlate,'TOPLEFT')
---    Name:SetPoint('BOTTOMRIGHT',namePlate,'TOPRIGHT')
-	  
+  
       Name:SetPoint(ADDON.nametext.point, HealthBar, ADDON.nametext.anchorpoint, ADDON.nametext.xoffs, ADDON.nametext.yoffs)
       
       Level:SetFontObject(GameFontNormal)
       Level:SetFont(ADDON.leveltext.font,ADDON.leveltext.size,'OUTLINE',0,-1)
       Level:SetPoint(ADDON.leveltext.point, HealthBar, ADDON.leveltext.anchorpoint,ADDON.leveltext.xoffs,ADDON.leveltext.yoffs)
-	  
-	  
-	  
+
 	  if ADDON.class == 'ROGUE' or ADDON.class == 'DRUID' then 
 		if namePlate.cp == nil then
             namePlate.cp = namePlate:CreateFontString(nil, 'OVERLAY')
@@ -410,14 +359,6 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
 		namePlate.cast.icon:SetPoint('RIGHT', namePlate.cast, 'LEFT', -2, 0)
 		namePlate.cast.icon:SetTexture[[Interface\Icons\Spell_nature_purge]]
 		namePlate.cast.icon:SetTexCoord(.1, .9, .1, .9)
-
---[[	namePlate.cast.border = namePlate.cast:CreateTexture(nil, 'OVERLAY')
-		namePlate.cast.border:SetTexture[[Interface\AddOns\CustomNameplates\border\roth]]
-		namePlate.cast.border:SetHeight(32)
-		namePlate.cast.border:SetPoint('TOPLEFT', namePlate, 'BOTTOMLEFT', 0, 8)
-		namePlate.cast.border:SetPoint('TOPRIGHT', namePlate, 'BOTTOMRIGHT', 0, 9)
-		namePlate.cast.border:SetVertexColor(.2, .2, .2)
-	]]
 	  end
 	  namePlate.cast:Hide()
 	  if text ~= nil then
