@@ -23,3 +23,7 @@ You can get it from  [HERE](https://github.com/laytya/Chronometer-vanilla) fixed
 ##Downloads:
 
 https://github.com/laytya/CustomNameplates/releases
+
+##Installation:
+
+Copy dir "CustomNameplates" to your addon's dir. 
