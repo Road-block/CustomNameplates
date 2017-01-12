@@ -1,11 +1,12 @@
 ﻿-- GLOBALS: CustomNameplatesHandleEvent, CustomNameplatesUpdate
 local _G = getfenv(0)
 local ADDON = {}
-
+local floor, mod = math.floor, math.mod
 -- Caches: Don't edit
 ADDON.currentDebuffs = {}
 ADDON.Players = {}
 ADDON.Targets = {}
+ADDON.namePlateCache = {}
 
 ADDON.Icons = {
   ["DRUID"] = "Interface\\AddOns\\CustomNameplates\\Class\\ClassIcon_Druid",
@@ -95,7 +96,7 @@ function ADDON.fillPlayerDB(name)
 end
 
 function ADDON.targetEmphasize(namePlate)
-  local emWidth, emHeight = (ADDON.genSettings.hbwidth * 1.1),(ADDON.genSettings.hbheight * 1.5)
+  local emWidth, emHeight = (ADDON.genSettings.hbwidth * 1.05),(ADDON.genSettings.hbheight * 1.2)
   namePlate.hb:SetWidth(emWidth)
   namePlate.hb:SetHeight(emHeight)
   namePlate.hb.bg:SetWidth(emWidth + 1.5)
@@ -116,6 +117,24 @@ function ADDON.targetIndicatorShow(namePlate)
   namePlate.targetIndicator:Show()
 end
 
+function ADDON.getChronometerTimer(debuffname,target)
+	for i = 20, 1, -1 do
+		if Chronometer.bars[i].name and Chronometer.bars[i].target 
+			and (Chronometer.bars[i].target == target or Chronometer.bars[i].target == "none")
+			and Chronometer.bars[i].timer.x.tx and Chronometer.bars[i].timer.x.tx == debuffname then
+			
+				local registered,time,elapsed,running = Chronometer:CandyBarStatus(Chronometer.bars[i].id)
+				
+				if registered and running then
+					--if elapsed > 5 then return decimal_round(elapsed, 0) else return decimal_round(elapsed, 1) end
+					return decimal_round(time-elapsed, 0)
+				else
+					return nil
+				end
+		end
+	end
+end
+
 function ADDON.targetIndicatorHide(namePlate)
   namePlate.targetIndicator:Hide()
 end
@@ -125,15 +144,27 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
   if not (CustomNameplates.ticker > ADDON.genSettings.refreshRate) then return end  -- cap at 60fps by default
   CustomNameplates.ticker = 0
   local frames = { WorldFrame:GetChildren() }
+
+--  CNPCleanUpExpiredDebuffs()
+
   for _, namePlate in ipairs(frames) do
     if ADDON.IsNamePlateFrame(namePlate) then
+      if (ADDON.namePlateCache[namePlate] == nil) then
+        --ADDON.Print("Nameplate is not in cache. Adding")
+        ADDON.namePlateCache[namePlate] = true
+      end
+	  
+	  
       local HealthBar = namePlate:GetChildren()
       local Border, Glow, Name, Level, Boss, RaidTargetIcon = namePlate:GetRegions()
-
+	  
+	  local text = Name:GetText()
+	  local target = GetUnitName'target'
+	  
       --Healthbar
       HealthBar:SetStatusBarTexture(ADDON.genSettings.texture)
       HealthBar:ClearAllPoints()
-      HealthBar:SetPoint("CENTER", namePlate, "CENTER", 0, -10)
+	  HealthBar:SetPoint("CENTER", namePlate, "CENTER", 0,0) -- -10)
       HealthBar:SetWidth(ADDON.genSettings.hbwidth) 
       HealthBar:SetHeight(ADDON.genSettings.hbheight)
       
@@ -142,7 +173,7 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
         HealthBar.bg = HealthBar:CreateTexture(nil, "BORDER")
         HealthBar.bg:SetTexture(0,0,0,0.85)
         HealthBar.bg:ClearAllPoints()
-        HealthBar.bg:SetPoint("CENTER", namePlate, "CENTER", 0, -10)
+		HealthBar.bg:SetPoint("CENTER", namePlate, "CENTER", 0, 0) -- -10)
         HealthBar.bg:SetWidth(HealthBar:GetWidth() + 1.5)
         HealthBar.bg:SetHeight(HealthBar:GetHeight() + 1.5)
       end
@@ -169,20 +200,43 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
 
       --DebuffIcons on TargetPlates 
       for j=1,16,1 do
-        if namePlate.debuffIcons[j] == nil and j<=8 then --first row
-          namePlate.debuffIcons[j] = namePlate:CreateTexture(nil, "BORDER")
-          namePlate.debuffIcons[j]:SetTexture(0,0,0,0)
-          namePlate.debuffIcons[j]:ClearAllPoints()
-          namePlate.debuffIcons[j]:SetPoint(ADDON.debufficon.point, HealthBar, ADDON.debufficon.anchorpoint, (j-1) * ADDON.debufficon.size, ADDON.debufficon.row1yoffs)
-          namePlate.debuffIcons[j]:SetWidth(ADDON.debufficon.size) 
-          namePlate.debuffIcons[j]:SetHeight(ADDON.debufficon.size) 
-        elseif namePlate.debuffIcons[j] == nil and j>8 then --second row
-          namePlate.debuffIcons[j] = namePlate:CreateTexture(nil, "BORDER")
-          namePlate.debuffIcons[j]:SetTexture(0,0,0,0)
-          namePlate.debuffIcons[j]:ClearAllPoints()
-          namePlate.debuffIcons[j]:SetPoint(ADDON.debufficon.point, HealthBar, ADDON.debufficon.anchorpoint, (j-9) * ADDON.debufficon.size, ADDON.debufficon.row2yoffs)
-          namePlate.debuffIcons[j]:SetWidth(ADDON.debufficon.size)
-          namePlate.debuffIcons[j]:SetHeight(ADDON.debufficon.size)
+        if (namePlate.debuffIcons[j] == nil) then
+          namePlate.debuffIcons[j] = CreateFrame("Frame", "CNPDebuff"..j, namePlate)
+
+		  namePlate.debuffIcons[j]:SetWidth(ADDON.debufficon.sizex) 
+          namePlate.debuffIcons[j]:SetHeight(ADDON.debufficon.sizey)
+		  namePlate.debuffIcons[j]:SetPoint(ADDON.debufficon.point, HealthBar, ADDON.debufficon.anchorpoint, mod(j-1,8) * (ADDON.debufficon.sizex+1)+ADDON.debufficon.xoffs, floor((j-1)/8)* (ADDON.debufficon.sizey+1)+ADDON.debufficon.yoffs)
+          namePlate.debuffIcons[j].texture = namePlate.debuffIcons[j]:CreateTexture(nil, "ARTWORK")
+          namePlate.debuffIcons[j].texture:SetAllPoints(namePlate.debuffIcons[j])
+		  
+		  namePlate.debuffIcons[j].stacks = namePlate.debuffIcons[j]:CreateFontString(nil, "OVERLAY")
+		  namePlate.debuffIcons[j].stacks:SetFont(ADDON.leveltext.font,ADDON.leveltext.size,'OUTLINE',0,-1)
+		  namePlate.debuffIcons[j].stacks:SetTextColor(1,1,1)
+		  namePlate.debuffIcons[j].stacks:SetText("")
+		  namePlate.debuffIcons[j].stacks:SetJustifyH('RIGHT')
+          namePlate.debuffIcons[j].stacks:SetPoint('BOTTOMRIGHT', 2, -2)
+          namePlate.debuffIcons[j].stacks:Hide()
+		  
+		  if Chronometer then
+			  namePlate.debuffIcons[j].cd = namePlate.debuffIcons[j]:CreateFontString(nil, "OVERLAY")
+			  namePlate.debuffIcons[j].cd:SetFont(ADDON.leveltext.font,ADDON.leveltext.size,'OUTLINE',0,-1)
+			  namePlate.debuffIcons[j].cd:SetTextColor(1,1,1)
+			  namePlate.debuffIcons[j].cd:SetText("")
+			  namePlate.debuffIcons[j].cd:SetJustifyH('LEFT')
+			  namePlate.debuffIcons[j].cd:SetPoint('TOPLEFT', -2, 7)
+			  namePlate.debuffIcons[j].cd:Hide()
+		  end
+ --[[ 		  namePlate.debuffIcons[j].cd = CreateFrame("Frame", "CNPDebuff"..j.."CD", namePlate.debuffIcons[j])
+         namePlate.debuffIcons[j].cd:SetWidth(ADDON.debufficon.sizex)
+          namePlate.debuffIcons[j].cd:SetHeight(ADDON.debufficon.sizey)
+          namePlate.debuffIcons[j].cd:SetFrameLevel(1)
+          namePlate.debuffIcons[j].cd:SetPoint("CENTER", namePlate.debuffIcons[j], 0, 0)
+
+          namePlate.debuffIcons[j].cdradial = CNPCreateCooldown(namePlate.debuffIcons[j].cd, 0.28 * ADDON.debufficon.sizex/12, false)
+          namePlate.debuffIcons[j].cdradial:SetAlpha(1)
+          namePlate.debuffIcons[j].cdradial:Hide()
+ ]]
+          namePlate.debuffIcons[j]:Hide()
         end
       end
       
@@ -193,21 +247,84 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
         else
           local j = 1
           local k = 1
+          -- Current debuffs is a list of ALL DEBUFFS ON THE TARGET, AS SPECIFIED BY UnitDebuff
+          -- We are potentially tracking some of them, and we'll match by icon. If the same
+          -- icon is present multiple times, the most recently tracked spell will be shown
+          -- for both.
+
+ --         local trackedDebuffs = CNPGetTrackedUnitDebuffs(UnitName("target"))
+ --         local debuffIsTracked = false
+          local texture = nil
+
           for j, e in ipairs(ADDON.currentDebuffs) do
-            namePlate.debuffIcons[j]:SetTexture(ADDON.currentDebuffs[j])
-            namePlate.debuffIcons[j]:SetTexCoord(.078, .92, .079, .937)
-            namePlate.debuffIcons[j]:SetAlpha(0.9)
+			local ry = (ADDON.debufficon.sizey/ADDON.debufficon.sizex)/2
+            debuffIsTracked = false
+            --ADDON.Print("Setting debuff " .. j .. " texture " .. ADDON.currentDebuffs[j] .. " and showing frame")
+            texture = ADDON.currentDebuffs[j]
+            if texture then 
+				namePlate.debuffIcons[j].texture:SetTexture(texture,true)
+				namePlate.debuffIcons[j].texture:SetTexCoord(.078, .92, .578 - ry, .42 + ry )
+				namePlate.debuffIcons[j].texture:SetAlpha(0.9)
+				namePlate.debuffIcons[j]:Show()
+				local debuffname, stacks = UnitDebuff("target", j)
+				if stacks then
+					namePlate.debuffIcons[j].stacks:SetText(stacks == 1 and "" or stacks);
+					namePlate.debuffIcons[j].stacks:Show()
+				else
+					namePlate.debuffIcons[j].stacks:Hide()
+				end
+				if Chronometer and debuffname then
+					--ADDON.Print(debuffname.."-"..target)
+					local duration = ADDON.getChronometerTimer(debuffname,target)
+					if duration then
+						namePlate.debuffIcons[j].cd:SetText(duration);
+						namePlate.debuffIcons[j].cd:Show()
+					else
+						namePlate.debuffIcons[j].cd:Hide()
+					end
+				
+				end
+			end
+--[[
+            for _, debuff in ipairs(trackedDebuffs) do
+              --ADDON.Print(debuff)
+              if texture == debuff.texture then
+                debuffIsTracked = true
+                --ADDON.Print("debuff " .. debuff.texture .. " is tracked! Curr texture: " .. texture)
+                --ADDON.Print("Start: " .. debuff.starttime .. ", end time: " .. debuff.endtime)
+
+                namePlate.debuffIcons[j].cd:Show()
+                namePlate.debuffIcons[j].cdradial:SetTimers(debuff.starttime, debuff.endtime)
+                namePlate.debuffIcons[j].cdradial:Show()
+
+                break
+              end
+            end
+
+            if (not debuffIsTracked) then
+              namePlate.debuffIcons[j].cd:Hide()
+              namePlate.debuffIcons[j].cdradial:Hide()
+            end
+]]
             k = k + 1
           end
           for j=k,16,1 do
-            namePlate.debuffIcons[j]:SetTexture(nil)
+            namePlate.debuffIcons[j].texture:SetTexture(nil)
+            namePlate.debuffIcons[j]:Hide()
+--            namePlate.debuffIcons[j].cd:Hide()
+--            namePlate.debuffIcons[j].cdradial:Hide()
           end
         end
       else
         ADDON.targetNormalsize(namePlate)
         ADDON.targetIndicatorHide(namePlate)
         for j=1,16,1 do
-          namePlate.debuffIcons[j]:SetTexture(nil)
+          if namePlate.debuffIcons[j].texture then 
+			namePlate.debuffIcons[j].texture:SetTexture(nil)
+			namePlate.debuffIcons[j]:Hide()
+ --         namePlate.debuffIcons[j].cd:Hide()
+ --         namePlate.debuffIcons[j].cdradial:Hide()
+		  end
         end
       end
       
@@ -233,26 +350,30 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
       Glow:Hide()
 
       Name:SetFontObject(GameFontNormal)
-      Name:SetFont(ADDON.nametext.font,ADDON.nametext.size)
-      Name:SetPoint(ADDON.nametext.point, namePlate, ADDON.nametext.anchorpoint, ADDON.nametext.xoffs, ADDON.nametext.yoffs)
+      Name:SetFont(ADDON.nametext.font,ADDON.nametext.size,'OUTLINE',0,-1)
+
+
+--	  Name:SetPoint('BOTTOMLEFT',namePlate,'TOPLEFT')
+--    Name:SetPoint('BOTTOMRIGHT',namePlate,'TOPRIGHT')
+	  
+      Name:SetPoint(ADDON.nametext.point, HealthBar, ADDON.nametext.anchorpoint, ADDON.nametext.xoffs, ADDON.nametext.yoffs)
       
       Level:SetFontObject(GameFontNormal)
-      Level:SetFont(ADDON.leveltext.font,ADDON.leveltext.size)
-      Level:SetPoint(ADDON.leveltext.point, Name, ADDON.leveltext.anchorpoint,ADDON.leveltext.xoffs,ADDON.leveltext.yoffs)
+      Level:SetFont(ADDON.leveltext.font,ADDON.leveltext.size,'OUTLINE',0,-1)
+      Level:SetPoint(ADDON.leveltext.point, HealthBar, ADDON.leveltext.anchorpoint,ADDON.leveltext.xoffs,ADDON.leveltext.yoffs)
 	  
-	  local text = Name:GetText()
-	  local target = GetUnitName'target'
+	  
 	  
 	  if ADDON.class == 'ROGUE' or ADDON.class == 'DRUID' then 
 		if namePlate.cp == nil then
             namePlate.cp = namePlate:CreateFontString(nil, 'OVERLAY')
-            namePlate.cp:SetFont(STANDARD_TEXT_FONT, 18, 'OUTLINE')
-            namePlate.cp:SetPoint('TOP', HealthBar,'TOP', 0, 4)
+            namePlate.cp:SetFont(ADDON.combopoints.font, ADDON.combopoints.size, 'OUTLINE')
+            namePlate.cp:SetPoint(ADDON.combopoints.point, HealthBar,ADDON.combopoints.anchorpoint,ADDON.combopoints.xoffs,ADDON.combopoints.yoffs)
         end
 		
 		local cp 	 = GetComboPoints()
 		namePlate.cp:Hide()
-		if target == text and HealthBar:GetAlpha() == 1 and cp > 0 then
+		if not ADDON.combopoints.hide and target == text and HealthBar:GetAlpha() == 1 and cp > 0 then
 			namePlate.cp:Show()
 			namePlate.cp:SetText(string.rep('•', cp))
 			namePlate.cp:SetTextColor(.5*(cp - 1), 2/(cp - 1), .5/(cp - 1))
@@ -261,11 +382,13 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
 	  
 	  if namePlate.cast == nil then
 		namePlate.cast = CreateFrame('StatusBar', nil, namePlate)
+		namePlate.cast:SetHeight(14)
 		namePlate.cast:SetStatusBarTexture([[Interface\AddOns\CustomNameplates\textures\smooth]])
 		namePlate.cast:SetStatusBarColor(1, .4, 0)
-		namePlate.cast:SetBackdrop({bgFile = [[Interface\AddOns\CustomNameplates\Backdrop\PlainBackdrop]],})
-		namePlate.cast:SetBackdropColor(0, 0, 0, .9)
-		namePlate.cast:SetHeight(14)
+		namePlate.cast:SetBackdrop({bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 8,})
+		namePlate.cast:SetBackdropColor(0, 0, 0, .7)
+	
+		
 		namePlate.cast:SetPoint('LEFT', namePlate, 21, 0)
 		namePlate.cast:SetPoint('RIGHT', namePlate, 0, 0)
 		namePlate.cast:SetPoint('TOP', HealthBar, 'BOTTOM', 0, -6)
@@ -356,7 +479,8 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
           Level:Hide()
         end
       end
-      if UnitName("target") == nil and string_find(name, "%s") == nil and string_len(name) <= 12 and ADDON.Targets[name] == nil then --Set Name text and save it in a list
+      if UnitName("target") == nil and string_find(name, "%s") == nil and string_len(name) <= 12 and ADDON.Targets[name] == nil then 
+	  --Set Name text and save it in a list
         CustomNameplates.scanningPlayers = true
         ADDON.fillPlayerDB(name)
         ClearTarget()
@@ -405,6 +529,7 @@ function CustomNameplatesHandleEvent(event) --Handles wow events
     ADDON.targetindicator = CustomNameplatesDBPC.targetindicator
     ADDON.nametext = CustomNameplatesDBPC.nametext
     ADDON.leveltext = CustomNameplatesDBPC.leveltext
+	ADDON.combopoints = CustomNameplatesDBPC.combopoints
     ADDON.VARIABLES_LOADED = true
     if ADDON.PLAYER_ENTERING_WORLD then
       ADDON.PLAYER_ENTERING_WORLD = nil
@@ -432,7 +557,7 @@ function CustomNameplatesHandleEvent(event) --Handles wow events
     end
   end
   
-  if event == "PLAYER_TARGET_CHANGED" or event == "UNIT_AURA" then
+  if event == "PLAYER_TARGET_CHANGED" or (event == "UNIT_AURA" and UnitExists("target") and arg1 == "target") then
     if UnitExists("target") then
       if not UnitIsDeadOrGhost("target") then
         ADDON.getDebuffs()
