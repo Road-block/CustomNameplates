@@ -16,6 +16,9 @@ Added many things such as:
 - Combopoints
 and some small things...
 
+Timers on debuffs will work only if u have Chronometer installed.
+
+You can get it from  [HERE](https://github.com/laytya/Chronometer-vanilla) fixed
 
 ##Downloads:
 
