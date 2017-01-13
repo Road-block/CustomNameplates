@@ -268,8 +268,10 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
             k = k + 1
           end
           for j=k,16,1 do
-            namePlate.debuffIcons[j].texture:SetTexture(nil)
-            namePlate.debuffIcons[j]:Hide()
+		   if namePlate.debuffIcons[j].texture then
+				namePlate.debuffIcons[j].texture:SetTexture(nil)
+				namePlate.debuffIcons[j]:Hide()
+		   end
           end
         end
       else
