@@ -5,8 +5,8 @@ local floor, mod = math.floor, math.mod
 -- Caches: Don't edit
 ADDON.currentDebuffs = {}
 ADDON.Players = {}
-ADDON.NPC = {}
---ADDON.namePlateCache = {}
+ADDON.Targets = {}
+ADDON.namePlateCache = {}
 
 ADDON.Icons = {
   ["DRUID"] = "Interface\\AddOns\\CustomNameplates\\Class\\ClassIcon_Druid",
@@ -26,33 +26,20 @@ ADDON.PetsRU = {["Рыжая полосатая кошка"]=true,["Серебр
   ["Паучок Дымной Паутины"]=true,["Механическая курица"]=true,["Птенец летучего хамелеона"]=true,["Зеленокрылый ара"]=true,["Гиацинтовый ара"]=true,
   ["Маленький темный дракончик"]=true,["Маленький изумрудный дракончик"]=true,["Маленький багровый дракончик"]=true,["Сиамская кошка"]=true,
   ["Пещерная крыса без сознания"]=true,["Механическая белка"]=true,["Крошечная ходячая бомба"]=true,["Крошка Дымок"]=true,["Механическая жаба"]=true,
-["Заяц-беляк"]=true}
+  ["Заяц-беляк"]=true}
 ADDON.PetsENG = {["Orange Tabby"]=true,["Silver Tabby"]=true,["Bombay"]=true,["Cornish Rex"]=true,["Hawk Owl"]=true,["Great Horned Owl"]=true,
   ["Cockatiel"]=true,["Senegal"]=true,["Black Kingsnake"]=true,["Brown Snake"]=true,["Crimson Snake"]=true,["Prairie Dog"]=true,["Cockroach"]=true,
   ["Ancona Chicken"]=true,["Worg Pup"]=true,["Smolderweb Hatchling"]=true,["Mechanical Chicken"]=true,["Sprite Darter"]=true,["Green Wing Macaw"]=true,
   ["Hyacinth Macaw"]=true,["Tiny Black Whelpling"]=true,["Tiny Emerald Whelpling"]=true,["Tiny Crimson Whelpling"]=true,["Siamese"]=true,
-["Unconscious Dig Rat"]=true,["Mechanical Squirrel"]=true,["Pet Bombling"]=true,["Lil' Smokey"]=true,["Lifelike Mechanical Toad"]=true}
-
-ADDON.classColors = {
-	HUNTER = {r = 0.67, g = 0.83, b = 0.45},
-	WARLOCK = {r = 0.58, g = 0.51, b = 0.79},
-	PRIEST = {r = 1.0, g = 1.0, b = 1.0},
-	PALADIN = {r = 0.96, g = 0.55, b = 0.73},
-	MAGE = {r = 0.41, g = 0.8, b = 0.94},
-	ROGUE = {r = 1.0, g = 0.96, b = 0.41},
-	DRUID = {r = 1.0, g = 0.49, b = 0.04},
-	SHAMAN = {r = 0.14, g = 0.35, b = 1.0},
-	WARRIOR = {r = 0.78, g = 0.61, b = 0.43},
-	PET = {r = 0.20, g = 0.90, b = 0.20},
-}
+  ["Unconscious Dig Rat"]=true,["Mechanical Squirrel"]=true,["Pet Bombling"]=true,["Lil' Smokey"]=true,["Lifelike Mechanical Toad"]=true}
 
 local _, class = UnitClass'player'
 ADDON.class = class
 -- upvalue some oft-called API for performance (scope upvalue limit = 32, damn you Lua 5.0)
 local UnitDebuff, UnitClass, UnitName, UnitIsPlayer, UnitExists, UnitIsDeadOrGhost, UnitAffectingCombat = 
-UnitDebuff, UnitClass, UnitName, UnitIsPlayer, UnitExists, UnitIsDeadOrGhost, UnitAffectingCombat
+  UnitDebuff, UnitClass, UnitName, UnitIsPlayer, UnitExists, UnitIsDeadOrGhost, UnitAffectingCombat
 local string_len, string_find, ipairs, table_insert = 
-string.len, string.find, ipairs, table.insert
+  string.len, string.find, ipairs, table.insert
 
 -- addon utility functions
 function ADDON.Print(msg)
@@ -75,7 +62,7 @@ function ADDON.getDebuffs() --get debuffs on current target and store it in list
 end
 local function decimal_round(n, dp)      -- ROUND TO 1 DECIMAL PLACE
     local shift = 10^(dp or 0)
-    return floor(n*shift + .5)/shift
+    return math.floor(n*shift + .5)/shift
 end
 local getTimerLeft = function(tEnd)
 	local t = tEnd - GetTime()
@@ -95,37 +82,16 @@ function ADDON.isPet(name)
 end
 
 function ADDON.fillPlayerDB(name)
-	if ADDON.Players[name] ~= nil or ADDON.NPC[name] ~= nil then return end
-	
+  if ADDON.Players[name] ~= nil then return end
+  if ADDON.Targets[name] == nil then
     TargetByName(name, true)
-	
+    table_insert(ADDON.Targets, name)
+    ADDON.Targets[name] = "_"
     if UnitIsPlayer("target") then
       local _, class = UnitClass("target") -- use the locale-independent return
-		ADDON.Players[name] = {}
-		ADDON.Players[name].class = class
-		
-		ADDON.Print(name.." => ".. ADDON.Players[name].class)
-	else
-		ADDON.NPC[name] = {}
-		ADDON.NPC[name].class = UnitClassification("target")
-	   	if  MobHealth_PPP  then ADDON.NPC[name].ppp = MobHealth_PPP( name..":"..UnitLevel("target") ); end
-		ADDON.Print(name.." => ".. ADDON.NPC[name].class .. ", " ..ADDON.NPC[name].ppp)
+      table_insert(ADDON.Players, name)
+      ADDON.Players[name] = {["class"] = class}
     end   
-end
-
-function ADDON.checkMouseover(name)
-	if ADDON.Players[name] ~= nil or ADDON.NPC[name] ~= nil or UnitName("mouseover") ~= name then return end
-	
-	if UnitIsPlayer("mouseover") then
-		local _, class = UnitClass("mouseover")
-		ADDON.Players[name] = {}
-		ADDON.Players[name].class = class
-		ADDON.Print(name.." => ".. ADDON.Players[name].class)
-	else
-		ADDON.NPC[name] = {}
-		ADDON.NPC[name].class = UnitClassification("mouseover")
-		if  MobHealth_PPP  then ADDON.NPC[name].ppp = MobHealth_PPP( name..":"..UnitLevel("mouseover") ); end
-		ADDON.Print(name.." => ".. ADDON.NPC[name].class .. ", " ..ADDON.NPC[name].ppp)
   end
 end
 
@@ -169,18 +135,6 @@ function ADDON.getChronometerTimer(debuffname,target)
 	end
 end
 
-function ADDON.ClassPos (class)
-	if(class=="WARRIOR") then return 0,    0.25,    0,	0.25;	end
-	if(class=="MAGE")    then return 0.25, 0.5,     0,	0.25;	end
-	if(class=="ROGUE")   then return 0.5,  0.75,    0,	0.25;	end
-	if(class=="DRUID")   then return 0.75, 1,       0,	0.25;	end
-	if(class=="HUNTER")  then return 0,    0.25,    0.25,	0.5;	end
-	if(class=="SHAMAN")  then return 0.25, 0.5,     0.25,	0.5;	end
-	if(class=="PRIEST")  then return 0.5,  0.75,    0.25,	0.5;	end
-	if(class=="WARLOCK") then return 0.75, 1,       0.25,	0.5;	end
-	if(class=="PALADIN") then return 0,    0.25,    0.5,	0.75;	end
-	return 0.25, 0.5, 0.5, 0.75	-- Returns empty next one, so blank
-end
 function ADDON.targetIndicatorHide(namePlate)
   namePlate.targetIndicator:Hide()
 end
@@ -190,14 +144,14 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
   if not (CustomNameplates.ticker > ADDON.genSettings.refreshRate) then return end  -- cap at 60fps by default
   CustomNameplates.ticker = 0
   local frames = { WorldFrame:GetChildren() }
-	
+
   for _, namePlate in ipairs(frames) do
     if ADDON.IsNamePlateFrame(namePlate) then
-	--[[		if (ADDON.namePlateCache[namePlate] == nil) then
+      if (ADDON.namePlateCache[namePlate] == nil) then
         --ADDON.Print("Nameplate is not in cache. Adding")
         ADDON.namePlateCache[namePlate] = true
       end
-	]]	
+	  
 	  
       local HealthBar = namePlate:GetChildren()
       local Border, Glow, Name, Level, Boss, RaidTargetIcon = namePlate:GetRegions()
@@ -222,7 +176,7 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
         HealthBar.bg:SetHeight(HealthBar:GetHeight() + 1.5)
       end
       namePlate.hb = HealthBar
-			
+
       --RaidTarget
       RaidTargetIcon:ClearAllPoints()
       RaidTargetIcon:SetWidth(ADDON.raidicon.size)
@@ -241,12 +195,12 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
         namePlate.targetIndicator:SetHeight(ADDON.targetindicator.size)
         namePlate.targetIndicator:Hide()
       end
-			
+
       --DebuffIcons on TargetPlates 
       for j=1,16,1 do
         if (namePlate.debuffIcons[j] == nil) then
           namePlate.debuffIcons[j] = CreateFrame("Frame", "CNPDebuff"..j, namePlate)
-					
+
 		  namePlate.debuffIcons[j]:SetWidth(ADDON.debufficon.sizex) 
           namePlate.debuffIcons[j]:SetHeight(ADDON.debufficon.sizey)
 		  namePlate.debuffIcons[j]:SetPoint(ADDON.debufficon.point, HealthBar, ADDON.debufficon.anchorpoint, mod(j-1,8) * (ADDON.debufficon.sizex+1)+ADDON.debufficon.xoffs, floor((j-1)/8)* (ADDON.debufficon.sizey+1)+ADDON.debufficon.yoffs)
@@ -282,7 +236,7 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
           local j = 1
           local k = 1
           local texture = nil
-					
+
           for j, e in ipairs(ADDON.currentDebuffs) do
 			local ry = (ADDON.debufficon.sizey/ADDON.debufficon.sizex)/2
             debuffIsTracked = false
@@ -337,7 +291,7 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
         namePlate.classIcon:SetWidth(ADDON.classicon.size)
         namePlate.classIcon:SetHeight(ADDON.classicon.size)
       end   
-			
+
       if namePlate.classIconBorder == nil then --ClassIconBackground
         namePlate.classIconBorder = namePlate:CreateTexture(nil, "BACKGROUND")
         namePlate.classIconBorder:SetTexture(0,0,0,0.9)
@@ -349,38 +303,16 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
       namePlate.classIcon:SetTexture(0,0,0,0)
       Border:Hide()
       Glow:Hide()
-			
+
       Name:SetFontObject(GameFontNormal)
       Name:SetFont(ADDON.nametext.font,ADDON.nametext.size,'OUTLINE',0,-1)
   
       Name:SetPoint(ADDON.nametext.point, HealthBar, ADDON.nametext.anchorpoint, ADDON.nametext.xoffs, ADDON.nametext.yoffs)
       
-			if namePlate.HP == nil then
-				namePlate.HP = namePlate:CreateFontString(nil, "OVERLAY")
-				namePlate.HP:SetFontObject(GameFontNormal)
-				namePlate.HP:SetFont(ADDON.leveltext.font,ADDON.leveltext.size ,'OUTLINE',0,-1)
-				namePlate.HP:SetTextColor(1,1,1)
-				namePlate.HP:SetText("")
-				namePlate.HP:SetJustifyH('RIGHT')
-				namePlate.HP:SetPoint('TOPRIGHT',HealthBar, 'BOTTOMRIGHT', -2.5, 8)
-				namePlate.HP:Hide()
-			end
-			
       Level:SetFontObject(GameFontNormal)
       Level:SetFont(ADDON.leveltext.font,ADDON.leveltext.size,'OUTLINE',0,-1)
       Level:SetPoint(ADDON.leveltext.point, HealthBar, ADDON.leveltext.anchorpoint,ADDON.leveltext.xoffs,ADDON.leveltext.yoffs)
-						
-			if Level.tag == nil then
-				Level.tag = namePlate:CreateFontString(nil, "OVERLAY")
-				Level.tag:SetFontObject(GameFontNormal)
-				Level.tag:SetFont(ADDON.leveltext.font,ADDON.leveltext.size,'OUTLINE',0,-1)
-				Level.tag:SetTextColor(1,1,1)
-				Level.tag:SetText("")
-				Level.tag:SetJustifyH('LEFT')
-				Level.tag:SetPoint('BOTTOMLEFT',Level, 'BOTTOMRIGHT', -2, 0)
-				Level.tag:Hide()
-			end
-			
+
 	  if ADDON.class == 'ROGUE' or ADDON.class == 'DRUID' then 
 		if namePlate.cp == nil then
             namePlate.cp = namePlate:CreateFontString(nil, 'OVERLAY')
@@ -409,30 +341,30 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
 		namePlate.cast:SetPoint('LEFT', namePlate, 21, 0)
 		namePlate.cast:SetPoint('RIGHT', namePlate, 0, 0)
 		namePlate.cast:SetPoint('TOP', HealthBar, 'BOTTOM', 0, -6)
-				
+
 		namePlate.cast.text = namePlate.cast:CreateFontString(nil, 'OVERLAY')
 		namePlate.cast.text:SetTextColor(1, 1, 1)
 		namePlate.cast.text:SetFont(STANDARD_TEXT_FONT, 10)
 		namePlate.cast.text:SetShadowOffset(1, -1)
 		namePlate.cast.text:SetShadowColor(0, 0, 0)
 		namePlate.cast.text:SetPoint('LEFT', namePlate.cast, 'LEFT', 2, 0)
-				
+
 		namePlate.cast.timer = namePlate.cast:CreateFontString(nil, 'OVERLAY')
 		namePlate.cast.timer:SetTextColor(1, 1, 1)
 		namePlate.cast.timer:SetFont(STANDARD_TEXT_FONT, 9)
 		namePlate.cast.timer:SetPoint('RIGHT', namePlate.cast,'RIGHT', -2, 0)
-				
+
 		namePlate.cast.icon = namePlate.cast:CreateTexture(nil, 'OVERLAY', nil, 7)
 		namePlate.cast.icon:SetWidth(16) namePlate.cast.icon:SetHeight(14)
 		namePlate.cast.icon:SetPoint('RIGHT', namePlate.cast, 'LEFT', -2, 0)
 		namePlate.cast.icon:SetTexture[[Interface\Icons\Spell_nature_purge]]
 		namePlate.cast.icon:SetTexCoord(.1, .9, .1, .9)
+	  end
 	  namePlate.cast:Hide()
-			end
-			
 	  if text ~= nil then
 		local v = PROCESSCASTINGgetCast(text)
-				if v ~= nil and GetTime() < v.timeEnd then
+		if v ~= nil then
+			if GetTime() < v.timeEnd then
 				namePlate.cast:SetMinMaxValues(0, v.timeEnd - v.timeStart)
 				if v.inverse then
 					namePlate.cast:SetValue(mod((v.timeEnd - GetTime()), v.timeEnd - v.timeStart))
@@ -444,42 +376,13 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
 				namePlate.cast.icon:SetTexture(v.icon)
 				namePlate.cast:SetAlpha(namePlate:GetAlpha())
 				namePlate.cast:Show()
-				else
-					namePlate.cast:Hide()
 			end
-			else
-				namePlate.cast:Hide()
+		end
 	  end
 	  
       HealthBar:Show()
       Name:Show()
-			
-			if namePlate.HP then
-				local min, max
-				local cur = HealthBar:GetValue()
-				local cunit = "%"
-				if  MobHealth_PPP  then
-					if MobHealth_GetTargetCurHP and UnitExists("target") and HealthBar:GetAlpha() == 1 then
-						local pcur = MobHealth_GetTargetCurHP()
-						cur = (pcur ~= nil) and pcur or cur;
-						cunit = (pcur ~= nil) and "" or cunit;
-				--		max = My_MobHealth_GetTargetMaxHP()  
-					else
-						local index = text..":"..(Level:GetText() or 99);
-						local ppp = MobHealth_PPP( index );
-						if ppp ~= 0 then 
-							cur = floor( cur * ppp + 0.5);
-				--		    max = floor( 100 * ppp + 0.5);
-							cunit = "";
-						end
-					end
-				else
-			--		min, max = HealthBar:GetMinMaxValues()
-				end
-				namePlate.HP:SetText(cur .. cunit ) --.. " / " .. max)
-				namePlate.HP:Show()
-			end
-			
+
       local red, green, blue, _ = Name:GetTextColor() --Set Color of Namelabel
       -- Print(red.." "..green.." "..blue)
       if red > 0.99 and green == 0 and blue == 0 then
@@ -487,30 +390,14 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
       elseif red > 0.99 and green > 0.81 and green < 0.82 and blue == 0 then
         Name:SetTextColor(1,1,1,0.85)
       end
-			
-			
-			
-			
-			if not ADDON.leveltext.hide and ADDON.NPC[text] ~= nil then 
-				local tad = ""
-				local classif = ADDON.NPC[text].class
-				if classif == "rare" then 
-					tad = "R"
-				elseif classif == "rareelite" then
-					tad = "R+"
-				elseif classif == "elite" then
-					tad = "+"
+
+      local red, green, blue, _ = HealthBar:GetStatusBarColor() --Set Color of Healthbar
+      if blue > 0.99 and red == 0 and green == 0 then
+        HealthBar:SetStatusBarColor(0.2,0.6,1,0.85)
+      elseif red == 0 and green > 0.99 and blue == 0 then
+        HealthBar:SetStatusBarColor(0.6,1,0,0.85)
       end
-				if (tad ~= "" and not Level.tag:IsVisible()) then 
-					Level.tag:SetText(tad)
-					Level.tag:Show()
-				else
-					Level.tag:Hide()
-				end
-			else
-				Level.tag:Hide()
-			end
-			
+
       local red, green, blue, _ = Level:GetTextColor() --Set Color of Level
       
       if red > 0.99 and green == 0 and blue == 0 then
@@ -518,75 +405,54 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
       elseif red > 0.99 and green > 0.81 and green < 0.82 and blue == 0 then
         Level:SetTextColor(1,1,1,0.85)
       end
-			
-			if (Level.tag:IsVisible()) then
-				Level.tag:SetTextColor(Level:GetTextColor())
-			end
-			
+
       if (ADDON.leveltext.hide) then
         Level:Hide()
       else
         Level:Show()
       end
-			
+
+      local name = Name:GetText()
       if ADDON.genSettings.showPets ~= true then
-				if ADDON.isPet(text) then
+        if ADDON.isPet(name) then
           HealthBar:Hide()
           Name:Hide()
           Level:Hide()
-					namePlate.HP:Hide()
         end
       end
-			
-			if UnitName("target") == nil then 
+      if UnitName("target") == nil and string_find(name, "%s") == nil and string_len(name) <= 12 and ADDON.Targets[name] == nil then 
 	  --Set Name text and save it in a list
         CustomNameplates.scanningPlayers = true
-				ADDON.fillPlayerDB(text)
+        ADDON.fillPlayerDB(name)
         ClearTarget()
         CustomNameplates.scanningPlayers = false
       end
       
-			ADDON.checkMouseover(text);
-			
       --if currently one of the nameplates is an actual player, draw ADDON.classicon
-			
-			if ADDON.Players[text] ~= nil and namePlate.classIcon:GetTexture() == "Solid Texture" and string_find(namePlate.classIcon:GetTexture(), "Interface") == nil then
-				if (not ADDON.classicon.hide) then
-					namePlate.classIcon:SetTexture(ADDON.Icons[ADDON.Players[text]["class"]])
+      if (ADDON.classicon.hide) then
+      else
+        if ADDON.Players[name] ~= nil and namePlate.classIcon:GetTexture() == "Solid Texture" and string_find(namePlate.classIcon:GetTexture(), "Interface") == nil then
+          namePlate.classIcon:SetTexture(ADDON.Icons[ADDON.Players[name]["class"]])
           namePlate.classIcon:SetTexCoord(.078, .92, .079, .937)
           namePlate.classIcon:SetAlpha(0.9)
-					--namePlate.classIconBorder:Show()
-				end
-				
-			else  
-				local red, green, blue, _ = HealthBar:GetStatusBarColor() --Set Color of Healthbar
-				if blue > 0.99 and red == 0 and green == 0 then
-					HealthBar:SetStatusBarColor(0.2,0.6,1,0.85)
-					elseif red == 0 and green > 0.99 and blue == 0 then
-					HealthBar:SetStatusBarColor(0.6,1,0,0.85)
-				end
-				
-				
+          namePlate.classIconBorder:Show()
         end        
-			if ADDON.Players[text] ~= nil then
-				local color = ADDON.classColors[ADDON.Players[text].class]
-				HealthBar:SetStatusBarColor(color.r,color.g,color.b,0.85)
       end
-			
+
       if Boss:IsVisible() then
         if Level:IsVisible() then
             Level:Hide()
             Boss:ClearAllPoints()
-					Boss:SetPoint(ADDON.leveltext.point, HealthBar, ADDON.leveltext.anchorpoint,ADDON.leveltext.xoffs,ADDON.leveltext.yoffs+2)
+            Boss:SetPoint("TOPLEFT", Name, "RIGHT", 1, 7)
         end
       end
-			
+
       if (ADDON.genSettings.clickThrough == true) then
         namePlate:EnableMouse(false)
       else
         namePlate:EnableMouse(true)
       end
-			
+
     end
   end  
 end
@@ -611,7 +477,7 @@ function CustomNameplatesHandleEvent(event) --Handles wow events
       CustomNameplatesHandleEvent("PLAYER_ENTERING_WORLD")
     end
   end
-	
+
   if event == "PLAYER_ENTERING_WORLD" then
     if ADDON.VARIABLES_LOADED then
       if (ADDON.genSettings.enableAddOn and not ADDON.genSettings.combatOnly) then
@@ -637,13 +503,13 @@ function CustomNameplatesHandleEvent(event) --Handles wow events
       if not UnitIsDeadOrGhost("target") then
         ADDON.getDebuffs()
       end
-			if not CustomNameplates.scanningPlayers then
+      if UnitIsPlayer("target") then
         local name = UnitName("target")
         ADDON.fillPlayerDB(name)
       end
     end
   end
-	
+
   if ADDON.VARIABLES_LOADED and ADDON.genSettings.combatOnly then
     if event == "PLAYER_REGEN_DISABLED" then -- incombat
       ShowNameplates()
@@ -651,7 +517,7 @@ function CustomNameplatesHandleEvent(event) --Handles wow events
       HideNameplates()
     end
   end
-	
+
 end
 
 function CustomNameplatesUpdate(elapsed) --updates the frames
