@@ -503,7 +503,7 @@ function ADDON.CustomNameplates_OnUpdate(elapsed)
 				elseif classif == "elite" then
 					tad = "+"
       end
-				if (tad ~= "" and not Level.tag:IsVisible()) then 
+				if (tad ~= "") then 
 					Level.tag:SetText(tad)
 					Level.tag:Show()
 				else
