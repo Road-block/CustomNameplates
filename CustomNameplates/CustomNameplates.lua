@@ -517,10 +517,10 @@ function CustomNameplates:OnUpdate(elapsed)
 					Level.tag:SetText(tad)
 					Level.tag:Show()
 				else
-					Level.tag:Hide()
+					local _ = Level.tag:IsVisible() and Level.tag:Hide()
 				end
 			else
-				Level.tag:Hide()
+				local _ = Level.tag:IsVisible() and Level.tag:Hide()			
 			end
 			
       local red, green, blue, _ = Level:GetTextColor() --Set Color of Level
