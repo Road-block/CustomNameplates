@@ -289,7 +289,7 @@
 --			local c = gsub(arg1, m, '%1')
 --			local s = gsub(arg1, m, '%2')
 --			local t = gsub(arg1, m, '%3')
-		if info and info.type == "hit" and info.source ~= "103" then
+		if info and info.type == "hit" and info.source ~= ParserLib_SELF then
 
 			-- instant spells that cancel casted ones
 			if CNP_INSTANT_SPELLCASTS_TO_TRACK[info.skill] then
@@ -307,7 +307,7 @@
 		end
 
 		-- self hits/crits
-		if info and info.type == "hit" and info.source == "103" then
+		if info and info.type == "hit" and info.source == ParserLib_SELF then
 --			local m = fphits and phits or fpcrits and pcrits or fpabsb and pabsb
 --			local s = gsub(arg1, m, '%1')
 --			local t = gsub(arg1, m, '%2')

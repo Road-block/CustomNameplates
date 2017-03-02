@@ -1,5 +1,5 @@
 ﻿local L = AceLibrary("AceLocale-2.2"):new("CustomNameplates")
-local BS = AceLibrary("Babble-Spell-2.2")
+local BS = AceLibrary("Babble-Spell-2.3")
 
 CustomNameplates = CreateFrame("Frame", nil, UIParent)
 CustomNameplates.ticker = 0
@@ -117,7 +117,7 @@ function ADDON.fillPlayerDB(name)
 		ADDON.NPC[name] = {}
 		ADDON.NPC[name].class = UnitClassification("target")
 	   	if  MobHealth_PPP  then ADDON.NPC[name].ppp = MobHealth_PPP( name..":"..UnitLevel("target") ); end
-	--	ADDON.Print(name.." => ".. ADDON.NPC[name].class .. ", " ..ADDON.NPC[name].ppp)
+--		ADDON.Print(name.." => ".. ADDON.NPC[name].class .. ", " ..(ADDON.NPC[name].ppp or "nil"))
     end   
 end
 
@@ -133,7 +133,7 @@ function ADDON.checkMouseover(name)
 		ADDON.NPC[name] = {}
 		ADDON.NPC[name].class = UnitClassification("mouseover")
 		if  MobHealth_PPP  then ADDON.NPC[name].ppp = MobHealth_PPP( name..":"..UnitLevel("mouseover") ); end
-		ADDON.Print(name.." => ".. ADDON.NPC[name].class .. ", " ..ADDON.NPC[name].ppp)
+--		ADDON.Print(name.." => ".. ADDON.NPC[name].class .. ", " ..(ADDON.NPC[name].ppp or "nil"))
   end
 end
 
@@ -711,7 +711,7 @@ function CustomNameplatesUpdateClickHandler(frame) -- from shaguplates
 				return
 			end	
 		end
-		Sea.io.print("Setup click")
+--		Sea.io.print("Setup click")
 		frame:SetScript("OnMouseDown", function()
         if arg1 and arg1 == "RightButton" then
           MouselookStart()
