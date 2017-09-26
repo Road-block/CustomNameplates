@@ -111,8 +111,7 @@ function ADDON.fillPlayerDB(name)
       local _, class = UnitClass("target") -- use the locale-independent return
 		ADDON.Players[name] = {}
 		ADDON.Players[name].class = class
-		
-	--	ADDON.Print(name.." => ".. ADDON.Players[name].class)
+--		ADDON.Print(name.." => ".. ADDON.Players[name].class)
 	else
 		ADDON.NPC[name] = {}
 		ADDON.NPC[name].class = UnitClassification("target")
@@ -128,7 +127,7 @@ function ADDON.checkMouseover(name)
 		local _, class = UnitClass("mouseover")
 		ADDON.Players[name] = {}
 		ADDON.Players[name].class = class
-		ADDON.Print(name.." => ".. ADDON.Players[name].class)
+--		ADDON.Print(name.." => ".. ADDON.Players[name].class)
 	else
 		ADDON.NPC[name] = {}
 		ADDON.NPC[name].class = UnitClassification("mouseover")
