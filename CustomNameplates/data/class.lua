@@ -25,10 +25,10 @@ local BS = AceLibrary("Babble-Spell-2.3")
 
     CNP_SPELLCASTS_TO_TRACK = {
             -- MISC
-	   [L['Cultivate Packet of Seeds']] = {[[Interface\Icons\inv_misc_food_45]], 10},
-	   [L['Furbolg Form']] 			  	= {[[Interface\Icons\Inv_misc_monsterclaw_04]], 2},
-	   [BS["Toxic Spit"]]				= {[[Interface\Icons\Spell_Nature_CorrosiveBreath]], 2},
-	   [BS['Void Bolt']]				= {[[Interface\Icons\Spell_Shadow_ShadowBolt]],2},
+     [L['Cultivate Packet of Seeds']] = {[[Interface\Icons\inv_misc_food_45]], 10},
+     [L['Furbolg Form']]           = {[[Interface\Icons\Inv_misc_monsterclaw_04]], 2},
+     [BS["Toxic Spit"]]        = {[[Interface\Icons\Spell_Nature_CorrosiveBreath]], 2},
+     [BS['Void Bolt']]        = {[[Interface\Icons\Spell_Shadow_ShadowBolt]],2},
             -- AHN'QIRAJ
        [L['Explode']]                   = {[[Interface\Icons\Spell_fire_selfdestruct]], 6},
             -- BLACKROCK SPIRE
@@ -174,8 +174,8 @@ local BS = AceLibrary("Babble-Spell-2.3")
        [BS['Lightning Bolt']]            = {[[Interface\Icons\Spell_nature_lightning]], 3},
             -- WARLOCK
        [BS['Banish']]                    = {[[Interface\Icons\Spell_shadow_cripple]], 1.5},
-       [BS["Corruption"]]				 = {[[Interface\Icons\Spell_Shadow_AbominationExplosion]], 2},
-	   [BS['Create Firestone']]          = {[[Interface\Icons\Inv_misc_gem_bloodstone_02]], 3},
+       [BS["Corruption"]]         = {[[Interface\Icons\Spell_Shadow_AbominationExplosion]], 2},
+     [BS['Create Firestone']]          = {[[Interface\Icons\Inv_misc_gem_bloodstone_02]], 3},
        [BS['Create Healthstone']]        = {[[Interface\Icons\Inv_stone_04]], 3},
        [BS['Create Spellstone']]         = {[[Interface\Icons\Inv_misc_gem_sapphire_01]], 5},
        [BS['Create Soulstone']]          = {[[Interface\Icons\Spell_shadow_soulgem]], 3},
@@ -225,26 +225,26 @@ local BS = AceLibrary("Babble-Spell-2.3")
        [BS['Drain Soul']]        = {[[Interface\Icons\Spell_shadow_haunting]], 4},
        [BS['Hellfire']]          = {[[Interface\Icons\Spell_holy_heal]], 6},
        [BS['Rain of Fire']]      = {[[Interface\Icons\Spell_shadow_rainoffire]], 6},
-	   [BS['Health Funnel']]     = {[[Interface\Icons\Spell_Shadow_LifeDrain]], 10},
+       [BS['Health Funnel']]     = {[[Interface\Icons\Spell_Shadow_LifeDrain]], 10},
     }
 
     CNP_INSTANT_SPELLCASTS_TO_TRACK = {
             -- DRUID
-		[BS['Moonfire']]         = true,
+    [BS['Moonfire']]         = true,
             -- MAGE
-		[BS['Arcane Explosion']] = true,
-		[BS['Cone of Cold']]     = true,
-		[BS['Fire Blast']]       = true,
-		[BS['Frost Nova']]       = true,
+    [BS['Arcane Explosion']] = true,
+    [BS['Cone of Cold']]     = true,
+    [BS['Fire Blast']]       = true,
+    [BS['Frost Nova']]       = true,
             -- PRIEST
-		[BS['Holy Nova']]        = true,
+    [BS['Holy Nova']]        = true,
             -- SHAMAN
-		[BS['Earth Shock']]      = true,
-		[BS['Flame Shock']]      = true,
-		[BS['Frost Shock']]      = true,
+    [BS['Earth Shock']]      = true,
+    [BS['Flame Shock']]      = true,
+    [BS['Frost Shock']]      = true,
             -- WARLOCK
-		[BS['Shadowburn']]       = true,
-	}
+    [BS['Shadowburn']]       = true,
+  }
 
     CNP_TIME_MODIFIER_BUFFS_TO_TRACK = {
        [BS['Curse of Tongues']]    = {1.6, {'all'}},
@@ -293,7 +293,7 @@ local BS = AceLibrary("Babble-Spell-2.3")
 
     CNP_BUFFS_TO_TRACK = {
             -- MISC
-    	[L['Free Action Potion']]     = {[[Interface\Icons\Inv_potion_04]], 30},
+      [L['Free Action Potion']]     = {[[Interface\Icons\Inv_potion_04]], 30},
         [L['Invulnerability']]        = {[[Interface\Icons\Spell_holy_divineintervention]], 6},
             -- RACIALS
         [BS['Perception']]             = {[[Interface\Icons\Spell_nature_sleep]], 20},
@@ -304,25 +304,25 @@ local BS = AceLibrary("Babble-Spell-2.3")
         [L['Fire Reflector']]         = {[[Interface\Icons\Spell_fire_sealoffire]], 5},
         [L['Shadow Reflector']]       = {[[Interface\Icons\Spell_shadow_antishadow]], 5},
             -- DRUID
-    	[BS['Abolish Poison']]         = {[[Interface\Icons\Spell_nature_nullifypoison_02]], 8},
-    	[BS['Nature\'s Grasp']]        = {[[Interface\Icons\Spell_nature_natureswrath]], 45},
+      [BS['Abolish Poison']]         = {[[Interface\Icons\Spell_nature_nullifypoison_02]], 8},
+      [BS['Nature\'s Grasp']]        = {[[Interface\Icons\Spell_nature_natureswrath]], 45},
             -- HUNTER
         [BS['Feign Death']]            = {[[Interface\Icons\Ability_rogue_feigndeath]], 360},
             -- MAGE
-    	[BS['Frost Ward']]             = {[[Interface\Icons\Spell_frost_frostward]], 30},
-    	[BS['Fire Ward']]              = {[[Interface\Icons\Spell_fire_firearmor]], 30},
-    	[BS['Ice Block']]              = {[[Interface\Icons\Spell_frost_frost]], 10},
+      [BS['Frost Ward']]             = {[[Interface\Icons\Spell_frost_frostward]], 30},
+      [BS['Fire Ward']]              = {[[Interface\Icons\Spell_fire_firearmor]], 30},
+      [BS['Ice Block']]              = {[[Interface\Icons\Spell_frost_frost]], 10},
             -- PALADIN
-    	[BS['Blessing of Protection']] = {[[Interface\Icons\Spell_holy_sealofprotection]], 8},
-    	[BS['Blessing of Freedom']]    = {[[Interface\Icons\Spell_holy_sealofvalor]], 10},
-    	[BS['Divine Protection']]      = {[[Interface\Icons\Spell_holy_restoration]], 8},
+      [BS['Blessing of Protection']] = {[[Interface\Icons\Spell_holy_sealofprotection]], 8},
+      [BS['Blessing of Freedom']]    = {[[Interface\Icons\Spell_holy_sealofvalor]], 10},
+      [BS['Divine Protection']]      = {[[Interface\Icons\Spell_holy_restoration]], 8},
             -- PRIEST
         [BS['Power Infusion']]         = {[[Interface\Icons\Spell_holy_powerinfusion]], 20},
-    	[BS['Power Word: Shield']]     = {[[Interface\Icons\Spell_holy_powerwordshield]], 30},
+      [BS['Power Word: Shield']]     = {[[Interface\Icons\Spell_holy_powerwordshield]], 30},
             -- ROGUE
         [BS['Vanish']]                 = {[[Interface\Icons\Ability_vanish]], 10},
             -- WARLOCK
-    	-- [BS['Shadow Trance']] = {'Interface\\Icons\\Spell_shadow_twilight', 10},
+      -- [BS['Shadow Trance']] = {'Interface\\Icons\\Spell_shadow_twilight', 10},
     }
 
     CNP_DEBUFFS_TO_TRACK = {

@@ -1,20 +1,22 @@
 ## Title: CustomNameplates
 ## Interface: 11200
-## Version: 1.70
+## Version: 2.0
 ## Author: Roadblock, laytya
-## X-Credits: Bonho, Snelf, Lulleh
+## X-Credits: Bonho, Snelf, Lulleh, Bonfyre
 ## Notes: Smaller stylized mouse-disabled nameplates with player class icons, target debuffs, target indicator. Lua-only settings at _settings.lua.
-## SavedVariablesPerCharacter: CustomNameplatesDBPC
+## SavedVariablesPerCharacter: NameplateDBPC
 
 libs\AceLibrary\AceLibrary.lua
 libs\AceLocale-2.2\AceLocale-2.2.lua
 libs\Babble-Spell-2.3\Babble-Spell-2.3.lua
 libs\ParserLib\ParserLib.lua
+libs\unitcasting.lua
 
-CustomNameplates-Locale.lua
+util.lua
+locale.lua
+data\class.lua
 
-Data\table.lua
-unitcasting.lua
+classes\nameplate.lua
 
 settings.lua
 options.lua
