@@ -1640,12 +1640,12 @@ function lib:LoadPatternCategory(category)
 			"AURAADDEDSELFHELPFUL",
 			"AURAAPPLICATIONADDEDSELFHELPFUL",
 		}
-	elseif category == "CastOther" then  list = {
+	elseif category == "CastOther" then	list = {
 			"SIMPLECASTOTHEROTHER",
 			"SIMPLECASTOTHERSELF",
 			"SPELLTERSE_OTHER",
 		}
-	elseif category == "CastSelf" then  list = {
+	elseif category == "CastSelf" then	list = {
 			"SIMPLECASTSELFOTHER",
 			"SIMPLECASTSELFSELF",
 			"SPELLTERSE_SELF",
@@ -1658,7 +1658,7 @@ function lib:LoadPatternCategory(category)
 			"AURAADDEDSELFHARMFUL",
 			"AURAAPPLICATIONADDEDSELFHARMFUL",
 		}
-	elseif category == "DispelFailOther" then  list = {
+	elseif category == "DispelFailOther" then	list = {
 			"DISPELFAILEDOTHEROTHER",
 			"DISPELFAILEDOTHERSELF",
 		
@@ -1735,7 +1735,7 @@ function lib:LoadPatternCategory(category)
 			"COMBATHITCRITSCHOOLSELFOTHER",
 			"COMBATHITCRITSELFOTHER",
 		}
-	elseif category == "MissOtherOther" then  list = {
+	elseif category == "MissOtherOther" then	list = {
 			"MISSEDOTHEROTHER",
 			"VSABSORBOTHEROTHER",
 			"VSBLOCKOTHEROTHER",
@@ -1749,7 +1749,7 @@ function lib:LoadPatternCategory(category)
 			"IMMUNEOTHEROTHER",
 			
 		}	
-	elseif category == "MissOtherSelf" then  list = {
+	elseif category == "MissOtherSelf" then	list = {
 			"MISSEDOTHERSELF",
 			"VSABSORBOTHERSELF",
 			"VSBLOCKOTHERSELF",
@@ -1762,7 +1762,7 @@ function lib:LoadPatternCategory(category)
 			"IMMUNEDAMAGECLASSOTHERSELF",
 			"IMMUNEOTHERSELF",
 		}	
-	elseif category == "MissSelf" then  list = {
+	elseif category == "MissSelf" then	list = {
 				"MISSEDSELFOTHER",
 				"VSABSORBSELFOTHER",
 				"VSBLOCKSELFOTHER",
@@ -1786,7 +1786,7 @@ function lib:LoadPatternCategory(category)
 			"SIMPLEPERFORMOTHERSELF",
 			"SPELLTERSEPERFORM_OTHER",
 		}
-	elseif category == "PerformSelf" then  list = {
+	elseif category == "PerformSelf" then	list = {
 			"OPEN_LOCK_SELF",
 			"SIMPLEPERFORMSELFOTHER",
 			"SIMPLEPERFORMSELFSELF",
@@ -1796,7 +1796,7 @@ function lib:LoadPatternCategory(category)
 			"PROCRESISTOTHEROTHER",
 			"PROCRESISTOTHERSELF",
 		}
-	elseif category == "ProcResistSelf" then  list = {
+	elseif category == "ProcResistSelf" then	list = {
 			"PROCRESISTSELFOTHER",
 			"PROCRESISTSELFSELF",
 		}
@@ -1808,7 +1808,7 @@ function lib:LoadPatternCategory(category)
 			"VSENVIRONMENTALDAMAGE_LAVA_OTHER",
 			"VSENVIRONMENTALDAMAGE_SLIME_OTHER",
 		}
-	elseif category == "EnvSelf" then  list = {
+	elseif category == "EnvSelf" then	list = {
 			"VSENVIRONMENTALDAMAGE_DROWNING_SELF",
 			"VSENVIRONMENTALDAMAGE_FALLING_SELF",
 			"VSENVIRONMENTALDAMAGE_FATIGUE_SELF",
@@ -1817,49 +1817,49 @@ function lib:LoadPatternCategory(category)
 			"VSENVIRONMENTALDAMAGE_SLIME_SELF",
 		}
 	-- HoT effects on others. (not casted by others)
-	elseif category == "HotOther" then  list = {
+	elseif category == "HotOther" then	list = {
 			"PERIODICAURAHEALOTHEROTHER",
 			"PERIODICAURAHEALSELFOTHER",
 		}
 	-- HoT effects on you. (not casted by you)
-	elseif category == "HotSelf" then  list = {
+	elseif category == "HotSelf" then	list = {
 			"PERIODICAURAHEALSELFSELF",
 			"PERIODICAURAHEALOTHERSELF",
 		}
-	elseif category == "PowerGainSelf" then  list = {
+	elseif category == "PowerGainSelf" then	list = {
 			"POWERGAINSELFSELF",
 			"POWERGAINSELFOTHER",
 		}
-	elseif category == "BuffOther" then  list = {
+	elseif category == "BuffOther" then	list = {
 		"AURAAPPLICATIONADDEDOTHERHELPFUL",
 		"AURAADDEDOTHERHELPFUL",
 		}
-	elseif category == "BuffSelf" then  list = {
+	elseif category == "BuffSelf" then	list = {
 			"AURAADDEDSELFHELPFUL",
 			"AURAAPPLICATIONADDEDSELFHELPFUL",
 		}
-	elseif category == "DrainSelf" then  list = {	
+	elseif category == "DrainSelf" then	list = {	
 			"SPELLPOWERLEECHSELFOTHER",
 			"SPELLPOWERDRAINSELFOTHER",
 			"SPELLPOWERDRAINSELFSELF",
 		}
-	elseif category == "DrainOther" then  list = {	
+	elseif category == "DrainOther" then	list = {	
 			"SPELLPOWERLEECHOTHEROTHER",
 			"SPELLPOWERLEECHOTHERSELF",
 			"SPELLPOWERDRAINOTHEROTHER",
 			"SPELLPOWERDRAINOTHERSELF",
 		}
 	-- DoT effects on others (not casted by others)
-	elseif category == "DotOther" then  list = {
+	elseif category == "DotOther" then	list = {
 			"PERIODICAURADAMAGEOTHEROTHER",
 			"PERIODICAURADAMAGESELFOTHER",
 		}
 	-- DoT effects on you (not casted by you)
-	elseif category == "DotSelf" then  list = {
+	elseif category == "DotSelf" then	list = {
 			"PERIODICAURADAMAGEOTHERSELF",
 			"PERIODICAURADAMAGESELFSELF",
 		}
-	elseif category == "SpellHitOther" then  list = {
+	elseif category == "SpellHitOther" then	list = {
 			"SPELLLOGCRITOTHEROTHER",
 			"SPELLLOGCRITOTHERSELF",
 			"SPELLLOGCRITSCHOOLOTHEROTHER",
@@ -1869,7 +1869,7 @@ function lib:LoadPatternCategory(category)
 			"SPELLLOGSCHOOLOTHEROTHER",
 			"SPELLLOGSCHOOLOTHERSELF",
 		}
-	elseif category == "SpellHitSelf" then  list = {
+	elseif category == "SpellHitSelf" then	list = {
 			"SPELLLOGCRITSELFOTHER",
 			"SPELLLOGCRITSELFSELF",
 			"SPELLLOGCRITSCHOOLSELFOTHER",
@@ -1926,11 +1926,11 @@ function lib:LoadPatternCategory(category)
 			"SPELLRESISTOTHEROTHER",
 			"SPELLRESISTOTHERSELF",
 		}	
-	elseif category == "InterruptOther" then  list = {
+	elseif category == "InterruptOther" then	list = {
 			"SPELLINTERRUPTOTHEROTHER",
 			"SPELLINTERRUPTOTHERSELF",
 		}
-	elseif category == "InterruptSelf" then  list = {
+	elseif category == "InterruptSelf" then	list = {
 			"SPELLINTERRUPTSELFOTHER",
 		}
 	elseif category == "SplitDamageOther" then list = {
