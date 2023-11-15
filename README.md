@@ -1,4 +1,7 @@
 # CustomNameplates
+
+This addon is depricated. I moved to [Kui-Nameplate](https://github.com/laytya/Kui-Namaplates)
+
 Vanilla WoW Nameplate addon. Original author: Bonho, Modifications by Snelf, Lulleh, Roadblock, Laytya (me)
 
 ![CustomNameplates Screen](http://i.imgur.com/4o5Frqw.jpg)
