@@ -1,7 +1,12 @@
 # CustomNameplates
-Vanilla WoW Nameplate addon. Original author: Bonho, Modifications by Snelf, Lulleh, Roadblock (me)
 
-![CustomNameplates Screen](http://i.imgur.com/e0AazsM.png)
+This addon is depricated. I moved to [Kui-Nameplate](https://github.com/laytya/Kui-Namaplates)
+
+Vanilla WoW Nameplate addon. Original author: Bonho, Modifications by Snelf, Lulleh, Roadblock, Laytya (me)
+
+![CustomNameplates Screen](http://i.imgur.com/4o5Frqw.jpg)
+![CustomNameplates](http://i.imgur.com/3BGqhML.jpg)
+![CustomNameplates](http://i.imgur.com/AaHg6A1.jpg)
 
 ### Reminder:  
 If this is the first time installing the addon and want to customize some lua options
@@ -9,16 +14,21 @@ If this is the first time installing the addon and want to customize some lua op
 2. edit whatever values you want to change in settings.lua
 
 ##Changelog:
-- Fix Level text and Boss texture overlapping.
-- Add an option for click-through toggling in _settings.lua (genSettings section).
-- Fix a missing comma in _settings.lua causing the addon to not load for fresh installs
-- Add emphasize functionality for target nameplate.
-- Add an optional texture replacement package that prevents border / glow flickering  
-when spam clicking a target or at low refresh rates.
-- [Work in Progress] Start on an options GUI and Per character saved variables.
+
+Added many things such as:
+- Casting bar
+- Debuffs
+- Combopoints
+and some small things...
+
+Timers on debuffs will work only if u have Chronometer installed.
+
+You can get it from  [HERE](https://github.com/laytya/Chronometer-vanilla) fixed
 
 ##Downloads:
-Since [1.5-alpha](https://github.com/Dridzt/CustomNameplates/releases/) and later package also contains an **optional** texture replacement package in CustomNameplates-Interface.zip  
-If you install it, this CustomNameplates-Interface.zip needs to be extracted 
-directly inside **\<wow_install\>\Interface\**   
-**not** inside **\<wow_install\>\Interface\AddOns\** like the main addon.
+
+https://github.com/laytya/CustomNameplates/releases
+
+##Installation:
+
+Copy dir "CustomNameplates" to your addon's dir. 

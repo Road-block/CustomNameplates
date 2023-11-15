@@ -4,11 +4,11 @@ local ADDON = {}
 CustomNameplatesDBPC = CustomNameplatesDBPC or {}
 ADDON.genSettings = _G.CustomNameplatesSettings and _G.CustomNameplatesSettings.genSettings
   or {["showPets"]=false,["enableAddOn"]=true,["showFriendly"]=false,["combatOnly"]=false,["hbwidth"]=80,["hbheight"]=4,
-      ["texture"]="Interface\\AddOns\\CustomNameplates\\barSmall",["refreshRate"]=1/60,["clickThrough"]=true}
+      ["texture"]="Interface\\AddOns\\CustomNameplates\\barSmall",["refreshRate"]=1/60,["clickThrough"]=2}
 ADDON.raidicon = _G.CustomNameplatesSettings and _G.CustomNameplatesSettings.raidicon
   or {["size"]=15,["point"]="BOTTOMLEFT",["anchorpoint"]="BOTTOMLEFT",["xoffs"]=-18,["yoffs"]=-4}
 ADDON.debufficon = _G.CustomNameplatesSettings and _G.CustomNameplatesSettings.debufficon
-  or {["hide"]=false,["size"]=12,["point"]="BOTTOMLEFT",["anchorpoint"]="BOTTOMLEFT",["row1yoffs"]=-13,["row2yoffs"]=-25}
+or {["hide"]=false,["sizex"]=12,["sizey"]=12,["point"]="BOTTOMLEFT",["anchorpoint"]="BOTTOMLEFT",["xoffs"]=-25,["yoffs"]=-13,["rowvector"] = 1}
 ADDON.classicon = _G.CustomNameplatesSettings and _G.CustomNameplatesSettings.classicon
   or {["hide"]=false,["size"]=12,["point"]="RIGHT",["anchorpoint"]="LEFT",["xoffs"]=-3,["yoffs"]=-1}
 ADDON.targetindicator = _G.CustomNameplatesSettings and _G.CustomNameplatesSettings.targetindicator
@@ -19,6 +19,9 @@ ADDON.nametext = _G.CustomNameplatesSettings and _G.CustomNameplatesSettings.nam
 ADDON.leveltext = _G.CustomNameplatesSettings and _G.CustomNameplatesSettings.leveltext
   or {["hide"]=false,["size"]=11,["point"]="TOPLEFT",["anchorpoint"]="RIGHT",["xoffs"]=3,["yoffs"]=4,
       ["font"]="Interface\\AddOns\\CustomNameplates\\Fonts\\Helvetica_Neue_LT_Com_77_Bold_Condensed.ttf"}
+ADDON.combopoints = _G.CustomNameplatesSettings and _G.CustomNameplatesSettings.combopoints
+  or {["hide"]=false,["size"]=18,["point"]="TOP",["anchorpoint"]="TOP",["xoffs"]=0,["yoffs"]=-8,
+      ["font"]=STANDARD_TEXT_FONT}
 
 local Points = {
 	"TOP", "RIGHT", "BOTTOM", "LEFT", "CENTER",
