@@ -4,6 +4,7 @@
 ## Author: Roadblock, laytya
 ## X-Credits: Bonho, Snelf, Lulleh
 ## Notes: Smaller stylized mouse-disabled nameplates with player class icons, target debuffs, target indicator. Lua-only settings at _settings.lua.
+## Notes-ruRU: Отображает Имя/Здоровье/Класс/Дебаффы над головами ближайших целей. Без интерфейса, только settings.lua.
 ## SavedVariablesPerCharacter: CustomNameplatesDBPC
 
 libs\AceLibrary\AceLibrary.lua
